@@ -1,0 +1,19 @@
+Requisitos previos:
+
+1. Node js (instalado)
+2. Composer (instaldo)
+3. Servidor de desarrollo xampp o laragon
+4. Instancia de base de datos datos Mysql
+5. Base de datos llamada : "proyecto_iudigital"
+6. Php instalado en servidor local
+
+Ejecutar comandos en la terminal ubicada en la raiz del proyecto
+
+1. composer install
+2. yarn
+3. php artisan migrate
+
+Para levantar el servidor de desarrollo
+
+1. yarn dev
+2. php artisan serve
