@@ -57,7 +57,7 @@ class UsuarioController extends Controller
             $roles = collect(['Admin' => 'Admin', 'Supervisor' => 'Supervisor', 'Cobranzas' => 'Cobranzas']);
         }
 
-        return view('admin.usuarios.index', compact('users', 'q', 'role', 'roles', 'status', 'perPage'));
+        return view('admin.users.index', compact('users', 'q', 'role', 'roles', 'status', 'perPage'));
     }
 
     /**
@@ -72,7 +72,7 @@ class UsuarioController extends Controller
             ? Role::query()->orderBy('name')->pluck('name', 'name')
             : collect(['Admin' => 'Admin', 'Supervisor' => 'Supervisor', 'Cobranzas' => 'Cobranzas']);
 
-        return view('admin.usuarios.create', compact('usuario', 'roles'));
+        return view('admin.users.create', compact('usuario', 'roles'));
     }
 
     /**
@@ -120,7 +120,7 @@ class UsuarioController extends Controller
             }
 
             return redirect()
-                ->route('admin.usuarios.index')
+                ->route('admin.users.index')
                 ->with('success', 'Usuario creado correctamente.');
         } catch (\Throwable $e) {
             Log::error('Error al crear usuario', ['ex' => $e]);
@@ -140,7 +140,7 @@ class UsuarioController extends Controller
             $usuario->loadMissing('roles');
         }
 
-        return view('admin.usuarios.show', compact('usuario'));
+        return view('admin.users.show', compact('usuario'));
     }
 
     /**
@@ -157,7 +157,7 @@ class UsuarioController extends Controller
             ? Role::query()->orderBy('name')->pluck('name', 'name')
             : collect(['Admin' => 'Admin', 'Supervisor' => 'Supervisor', 'Cobranzas' => 'Cobranzas']);
 
-        return view('admin.usuarios.edit', compact('usuario', 'roles'));
+        return view('admin.users.edit', compact('usuario', 'roles'));
     }
 
     /**
@@ -207,7 +207,7 @@ class UsuarioController extends Controller
             }
 
             return redirect()
-                ->route('admin.usuarios.edit', $user)
+                ->route('admin.users.edit', $user)
                 ->with('success', 'Usuario actualizado correctamente.');
         } catch (\Throwable $e) {
             Log::error('Error al actualizar usuario', ['id' => $usuario->id, 'ex' => $e]);
@@ -225,14 +225,14 @@ class UsuarioController extends Controller
             $this->deleteUser->handle($usuario->id);
 
             return redirect()
-                ->route('admin.usuarios.index')
+                ->route('admin.users.index')
                 ->with('success', 'Usuario eliminado correctamente.');
         } catch (\Throwable $e) {
             Log::error('Error al eliminar usuario', ['id' => $usuario->id, 'ex' => $e]);
 
             // Si hay FK o restricciones, podrías optar por soft-delete o is_active=false
             return redirect()
-                ->route('admin.usuarios.index')
+                ->route('admin.users.index')
                 ->withErrors(['general' => 'No se pudo eliminar el usuario. Verifica dependencias o intenta desactivarlo.']);
         }
     }

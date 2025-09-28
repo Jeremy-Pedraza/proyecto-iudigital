@@ -16,10 +16,10 @@ use App\Http\Controllers\authentications\ForgotPasswordBasic;
 // ───────────────────────────────────────────────────────────────────────────────
 use App\Http\Controllers\Sigeruta\Admin\UsuarioController;
 use App\Http\Controllers\Sigeruta\Admin\RolController;
+use App\Http\Controllers\Sigeruta\Admin\ProductosController;
 use App\Http\Controllers\Sigeruta\Admin\PermisoController;
 use App\Http\Controllers\Sigeruta\Admin\AuditoriaController;
 
-use App\Http\Controllers\Sigeruta\Catalogos\ProductosController;
 use App\Http\Controllers\Sigeruta\Catalogos\ListasRapidasController;
 
 use App\Http\Controllers\Sigeruta\Geo\ZonasController;
@@ -72,15 +72,16 @@ Route::middleware(['auth'])->group(function () {
     // 4.3 ADMINISTRACIÓN (Usuarios/Roles/Permisos, Catálogos, Auditoría)
     // Roles: Admin
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('admin')->as('admin.')->middleware(['role:Admin'])->group(function () {
+
+    Route::resource('users', UsuarioController::class);
+    Route::prefix('admin')->as('admin.')->middleware(['role:Administrador'])->group(function () {
 
         // Usuarios/Roles/Permisos
-        Route::resource('usuarios', UsuarioController::class);              // CRUD usuarios
-        // Route::resource('roles', RolController::class);                     // CRUD roles
-        // Route::resource('permisos', PermisoController::class)->only(['index', 'show', 'update']);
+        // CRUD usuarios
+        Route::resource('roles', RolController::class);                     // CRUD roles        
 
         // // Catálogo de productos y listas rápidas
-        // Route::resource('productos', ProductosController::class);           // RF-07
+        Route::resource('productos', ProductosController::class)->parameters(['productos' => 'producto']);           // RF-07
         // Route::resource('listas-rapidas', ListasRapidasController::class);  // RF-07
 
         // // Auditoría/bitácora
@@ -165,5 +166,5 @@ Route::middleware(['auth'])->group(function () {
     // ───────────────────────────────────────────────────────────────────
     // 4.9 Fallback 404 (opcional)
     // ───────────────────────────────────────────────────────────────────
-    Route::fallback(fn() => redirect()->route('pages-misc-error'));
+    //Route::fallback(fn() => redirect()->route('pages-misc-error'));
 });
