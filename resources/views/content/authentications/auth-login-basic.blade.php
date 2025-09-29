@@ -63,11 +63,11 @@
                             </div>
                             <div class="mb-5 pb-2 d-flex justify-content-between pt-2 align-items-center">
                                 <div class="form-check mb-0">
-                                    <input class="form-check-input" name="remember" type="checkbox" id="remember-me"
-                                        {{ old('remember') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="remember-me">
-                                        Remember Me
-                                    </label>
+                                    <input type="hidden" name="remember" value="0">
+
+                                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember"
+                                        value="1" {{ old('remember') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="remember-me">Remember Me</label>
                                 </div>
                                 <a href="{{ route('auth-reset-password') }}" class="float-end mb-1">
                                     <span>Forgot Password?</span>

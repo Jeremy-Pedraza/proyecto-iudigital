@@ -31,11 +31,19 @@
             <form action="{{ route('admin.usuarios.store') }}" method="POST" class="row g-3">
                 @csrf
 
-                <div class="col-md-6">
-                    <label class="form-label">Nombre completo <span class="text-danger">*</span></label>
+                <div class="col-md-3">
+                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}"
-                        class="form-control @error('name') is-invalid @enderror" placeholder="Ej: Ana Pérez">
+                        class="form-control @error('name') is-invalid @enderror" placeholder="Ej: Ana">
                     @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                    <input type="text" name="lastname" value="{{ old('lastname') }}"
+                        class="form-control @error('lastname') is-invalid @enderror" placeholder="Ej: Pérez Gómez">
+                    @error('lastname')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

@@ -17,8 +17,8 @@
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0">Usuarios</h4>
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-            <i class="ti ti-plus"></i> Nuevo usuario
+        <a href="{{ route('admin.usuarios.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus"></i> Nuevo usuario
         </a>
     </div>
 
@@ -42,11 +42,11 @@
 
     <div class="card mb-4">
         <div class="card-header">
-            <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('admin.usuarios.index') }}" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">Buscar</label>
                     <input type="text" name="q" value="{{ $q }}" class="form-control"
-                        placeholder="Nombre, email o usuario…">
+                        placeholder="Nombre, apellido, email o usuario…">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Rol</label>
@@ -73,8 +73,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button class="btn btn-secondary w-100" type="submit"><i class="ti ti-search"></i></button>
+                <div class="col-md-1 d-flex justify-content-center">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -83,7 +85,8 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>Nombres</th>
+                        <th>Apellidos</th>
                         <th>Usuario</th>
                         <th>Email</th>
                         <th>Rol(es)</th>
@@ -96,20 +99,16 @@
                     @forelse($users as $u)
                         <tr>
                             <td>{{ $u->name }}</td>
+                            <td>{{ $u->lastname }}</td>
                             <td>{{ $u->username ?? '—' }}</td>
                             <td>{{ $u->email }}</td>
                             <td>
-                                @if (method_exists($u, 'getRoleNames'))
-                                    @php $rn = $u->getRoleNames(); @endphp
-                                    @forelse($rn as $r)
-                                    <span class="badge bg-label-primary me-1">{{ $r }}</span> @empty <span
-                                            class="text-muted">Sin rol</span>
-                                    @endforelse
-                                @elseif(!empty($u->role))
-                                    <span class="badge bg-label-primary">{{ $u->role }}</span>
-                                @else
+                                @php $rn = $u->role_names ?? []; @endphp
+                                @forelse($rn as $r)
+                                    <span class="badge bg-label-primary me-1">{{ $r }}</span>
+                                @empty
                                     <span class="text-muted">Sin rol</span>
-                                @endif
+                                @endforelse
                             </td>
                             <td>
                                 @if ($u->is_active ?? true)
@@ -120,19 +119,21 @@
                             </td>
                             <td>{{ optional($u->created_at)->format('Y-m-d') }}</td>
                             <td class="text-end">
-                                <a href="{{ route('admin.users.show', $u) }}"
+                                <a href="{{ route('admin.usuarios.show', $u) }}"
                                     class="btn btn-sm btn-icon btn-outline-secondary" title="Ver">
-                                    <i class="ti ti-eye"></i>
+                                    <i class="fa-regular fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.users.edit', $u) }}"
+                                <a href="{{ route('admin.usuarios.edit', $u) }}"
                                     class="btn btn-sm btn-icon btn-outline-primary" title="Editar">
-                                    <i class="ti ti-edit"></i>
+                                    <i class="fa-solid fa-user-pen"></i>
                                 </a>
-                                <form action="{{ route('admin.users.destroy', $u) }}" method="POST" class="d-inline"
-                                    onsubmit="return confirm('¿Eliminar este usuario?');">
+                                <form action="{{ route('admin.usuarios.destroy', $u) }}" method="POST"
+                                    id="delete-form-{{ $u->id }}" class="d-inline js-delete-form">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-icon btn-outline-danger" type="submit" title="Eliminar">
-                                        <i class="ti ti-trash"></i>
+                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger js-open-delete"
+                                        data-form="delete-form-{{ $u->id }}" data-name="{{ $u->name }}"
+                                        title="Eliminar">
+                                        <i class="fa-solid fa-user-minus"></i>
                                     </button>
                                 </form>
                             </td>
@@ -157,3 +158,66 @@
         @endif
     </div>
 @endsection
+
+
+@section('modals')
+    <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Confirmar eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-0">
+                        ¿Seguro que deseas eliminar el Usuario
+                        <strong data-user-name></strong>?
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-delete">
+                        Sí, eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let targetFormId = null;
+
+            const modalEl = document.getElementById('modalDelete');
+            const nameEl = modalEl.querySelector('[data-user-name]');
+            const confirmEl = document.getElementById('btn-confirm-delete');
+            const bsModal = new bootstrap.Modal(modalEl);
+
+            // Delegación: cualquier botón .js-open-delete abre el modal
+            document.body.addEventListener('click', function(e) {
+                const btn = e.target.closest('.js-open-delete');
+                if (!btn) return;
+
+                targetFormId = btn.dataset.form || null;
+                nameEl.textContent = btn.dataset.name || '';
+                bsModal.show();
+            });
+
+            // Al confirmar, enviamos el formulario objetivo
+            confirmEl.addEventListener('click', function() {
+                if (!targetFormId) return;
+                const form = document.getElementById(targetFormId);
+                if (form) form.submit();
+            });
+        });
+    </script>
+@endpush

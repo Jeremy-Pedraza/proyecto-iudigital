@@ -5,7 +5,7 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0">Productos</h4>
         <a href="{{ route('admin.productos.create') }}" class="btn btn-primary">
-            <i class="ti ti-plus"></i> Nuevo producto
+            <i class="fa-solid fa-plus me-1"></i> Nuevo producto
         </a>
     </div>
 
@@ -58,7 +58,7 @@
                     </select>
                 </div>
                 <div class="col-12 d-flex justify-content-end">
-                    <button class="btn btn-secondary"><i class="ti ti-search"></i></button>
+                    <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </form>
         </div>
@@ -94,15 +94,18 @@
                             <td class="text-end">
                                 <a href="{{ route('admin.productos.show', $p) }}"
                                     class="btn btn-sm btn-icon btn-outline-secondary" title="Ver"><i
-                                        class="ti ti-eye"></i></a>
+                                        class="fa-regular fa-eye"></i></a>
                                 <a href="{{ route('admin.productos.edit', $p) }}"
                                     class="btn btn-sm btn-icon btn-outline-primary" title="Editar"><i
-                                        class="ti ti-edit"></i></a>
-                                <form action="{{ route('admin.productos.destroy', $p) }}" method="POST" class="d-inline"
-                                    onsubmit="return confirm('¿Eliminar este producto?');">
+                                        class="fa-regular fa-pen-to-square"></i></a>
+                                <form action="{{ route('admin.productos.destroy', $p) }}" method="POST"
+                                    id="delete-form-{{ $p->id }}" class="d-inline js-delete-form">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-icon btn-outline-danger" title="Eliminar"><i
-                                            class="ti ti-trash"></i></button>
+                                    <button type="button" class="btn btn-sm btn-icon btn-outline-danger js-open-delete"
+                                        data-form="delete-form-{{ $p->id }}" data-name="{{ $p->name }}"
+                                        title="Eliminar">
+                                        <i class="fa-regular fa-square-minus"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -125,3 +128,65 @@
         @endif
     </div>
 @endsection
+
+@section('modals')
+    <div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Confirmar eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-0">
+                        ¿Seguro que deseas eliminar el producto
+                        <strong data-product-name></strong>?
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-delete">
+                        Sí, eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let targetFormId = null;
+
+            const modalEl = document.getElementById('modalDelete');
+            const nameEl = modalEl.querySelector('[data-product-name]');
+            const confirmEl = document.getElementById('btn-confirm-delete');
+            const bsModal = new bootstrap.Modal(modalEl);
+
+            // Delegación: cualquier botón .js-open-delete abre el modal
+            document.body.addEventListener('click', function(e) {
+                const btn = e.target.closest('.js-open-delete');
+                if (!btn) return;
+
+                targetFormId = btn.dataset.form || null;
+                nameEl.textContent = btn.dataset.name || '';
+                bsModal.show();
+            });
+
+            // Al confirmar, enviamos el formulario objetivo
+            confirmEl.addEventListener('click', function() {
+                if (!targetFormId) return;
+                const form = document.getElementById(targetFormId);
+                if (form) form.submit();
+            });
+        });
+    </script>
+@endpush

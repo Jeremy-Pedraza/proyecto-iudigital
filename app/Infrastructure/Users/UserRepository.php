@@ -6,6 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Domain\Contracts\Users\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
 class UserRepository implements UserRepositoryInterface
@@ -13,6 +14,7 @@ class UserRepository implements UserRepositoryInterface
     public function paginateFiltered(?string $query, ?string $role, ?string $status, int $perPage = 10): LengthAwarePaginator
     {
         $q = User::query()
+            ->with(['roles:id,name,slug']) // 👈 evita N+1 y habilita $user->role_names
             ->when($query, function (Builder $b) use ($query) {
                 $term = "%{$query}%";
                 $b->where(function (Builder $w) use ($term) {
@@ -28,11 +30,16 @@ class UserRepository implements UserRepositoryInterface
                     $b->where('is_active', (bool) $status);
                 }
             })
-            ->when($role, fn(Builder $b) => $b->where('role', $role));
+            ->when($role, function (Builder $b) use ($role) {
+                $needle = mb_strtolower($role);
+                $b->whereHas('roles', function (Builder $r) use ($needle) {
+                    $r->where(DB::raw('LOWER(slug)'), $needle)
+                        ->orWhere(DB::raw('LOWER(name)'), $needle);
+                });
+            });
 
         $paginator = $q->latest('id')->paginate($perPage);
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
-        $paginator->withQueryString(); // ✅ sin alerta
+
 
         return $paginator;
     }

@@ -43,7 +43,7 @@
                     </select>
                 </div>
                 <div class="col-md-12 d-flex justify-content-end">
-                    <button class="btn btn-secondary"><i class="ti ti-search"></i></button>
+                    <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </form>
         </div>

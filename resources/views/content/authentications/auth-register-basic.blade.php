@@ -36,6 +36,16 @@
                                 <label for="username">Username</label>
                             </div>
                             <div class="form-floating form-floating-outline mb-5">
+                                <input type="text" class="form-control" id="name" name="name"
+                                    placeholder="Enter your name">
+                                <label for="name">Name</label>
+                            </div>
+                            <div class="form-floating form-floating-outline mb-5">
+                                <input type="text" class="form-control" id="lastname" name="lastname"
+                                    placeholder="Enter your lastname">
+                                <label for="lastname">Lastname</label>
+                            </div>
+                            <div class="form-floating form-floating-outline mb-5">
                                 <input type="text" class="form-control" id="email" name="email"
                                     placeholder="Enter your email">
                                 <label for="email">Email</label>

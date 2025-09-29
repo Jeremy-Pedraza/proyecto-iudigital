@@ -24,12 +24,6 @@ return new class extends Migration
             if (!Schema::hasColumn('users', 'last_login_at')) {
                 $table->timestamp('last_login_at')->nullable()->after('email_verified_at');
             }
-
-            // Rol simple (si NO usas Spatie). Deja este campo si quieres además
-            // un “rol principal” para vistas, aunque uses Spatie.
-            if (!Schema::hasColumn('users', 'role')) {
-                $table->string('role', 32)->nullable()->index()->after('is_active');
-            }
         });
     }
 
@@ -47,11 +41,6 @@ return new class extends Migration
 
             if (Schema::hasColumn('users', 'last_login_at')) {
                 $table->dropColumn('last_login_at');
-            }
-
-            if (Schema::hasColumn('users', 'role')) {
-                $table->dropIndex(['role']); // por si el driver crea índice nombrado automáticamente
-                $table->dropColumn('role');
             }
         });
     }

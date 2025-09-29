@@ -47,6 +47,11 @@ class UserRepository
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
+        // Forzar activo por defecto (ignorar cualquier 'is_active' que venga)
+        $data['is_active'] = true;
+
+        // (Opcional) inicializa last_login_at en null explícitamente
+        $data['last_login_at'] = $data['last_login_at'] ?? null;
 
         return $this->model->create($data);
     }
