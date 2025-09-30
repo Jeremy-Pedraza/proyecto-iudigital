@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Infrastructure\Users;
 
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
-class UserRepository
+class RegisterRepository
 {
     protected $model;
 

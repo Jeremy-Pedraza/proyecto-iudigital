@@ -28,6 +28,20 @@
       "slug": "admin-productos"
     },
     {
+      "url": "admin/listas-rapidas",
+      "name": "Listas rápidas",
+      "icon": "menu-icon tf-icons ri-list-check-2",
+      "slug": "admin-listas-rapidas",
+      "disabled": true
+    },
+    {
+      "url": "admin/auditoria",
+      "name": "Auditoría",
+      "icon": "menu-icon tf-icons ri-file-list-3-line",
+      "slug": "admin-auditoria",
+      "disabled": true
+    },
+    {
       "menuHeader": "Planificación"
     },
     {
@@ -116,13 +130,6 @@
       "disabled": true
     },
     {
-      "url": "operacion/evidencias",
-      "name": "Evidencias",
-      "icon": "menu-icon tf-icons ri-attachment-line",
-      "slug": "operacion-evidencias",
-      "disabled": true
-    },
-    {
       "menuHeader": "Reportes & KPIs"
     },
     {
@@ -159,7 +166,6 @@
       "menuHeader": "Seguridad"
     },
     {
-      "url": "dispositivos/registrar",
       "name": "Dispositivos",
       "icon": "menu-icon tf-icons ri-smartphone-line",
       "slug": "seguridad-dispositivos",

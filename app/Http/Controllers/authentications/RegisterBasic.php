@@ -4,14 +4,14 @@ namespace App\Http\Controllers\authentications;
 
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Controllers\Controller;
-use App\Repositories\UserRepository;
+use App\Infrastructure\Users\RegisterRepository;
 
 
 class RegisterBasic extends Controller
 {
   protected $users;
 
-  public function __construct(UserRepository $users)
+  public function __construct(RegisterRepository $users)
   {
     $this->users = $users;
   }

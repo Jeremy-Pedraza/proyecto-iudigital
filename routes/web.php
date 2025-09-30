@@ -82,17 +82,17 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('usuarios', UsuarioController::class);
         // // Catálogo de productos y listas rápidas
         Route::resource('productos', ProductosController::class)->parameters(['productos' => 'producto']);           // RF-07
-        // Route::resource('listas-rapidas', ListasRapidasController::class);  // RF-07
+        Route::resource('listas-rapidas', ListasRapidasController::class);  // RF-07
 
         // // Auditoría/bitácora
-        // Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index'); // RF-16
+        Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index'); // RF-16
     });
 
     // ───────────────────────────────────────────────────────────────────
     // 4.4 PLANIFICACIÓN
     // Roles: Admin | Supervisor (Planner)
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('planificacion')->as('planificacion.')->middleware(['role:Administrador|Supervisor'])->group(function () {
+    Route::prefix('planificacion')->as('planificacion.')->middleware(['role:admin|Supervisor'])->group(function () {
 
         // // Catálogos de planificación
         // Route::resource('clientes', ClientesController::class);          // RF-05/06
@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     // 4.5 OPERACIÓN (Agenda, Paradas, Pedidos, Cobros, Evidencias)
     // Roles: Admin | Supervisor | Cobranzas
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('operacion')->as('operacion.')->middleware(['role:Administrador|Supervisor|Cobranzas'])->group(function () {
+    Route::prefix('operacion')->as('operacion.')->middleware(['role:admin|Supervisor|Cobranzas'])->group(function () {
 
         // Agenda de trabajo (hoy y general)
         // Route::get('agenda', [AgendaController::class, 'index'])->name('agenda.index'); // RF-08
@@ -138,7 +138,7 @@ Route::middleware(['auth'])->group(function () {
     // 4.6 REPORTES & KPIs
     // Roles: Admin | Supervisor
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('reportes')->as('reportes.')->middleware(['role:Administrador|Supervisor'])->group(function () {
+    Route::prefix('reportes')->as('reportes.')->middleware(['role:admin|Supervisor'])->group(function () {
         //     Route::get('cumplimiento', [ReportesController::class, 'cumplimiento'])->name('cumplimiento'); // RF-14
         //     Route::get('ventas', [ReportesController::class, 'ventas'])->name('ventas');                   // RF-15
         //     Route::get('cartera', [ReportesController::class, 'cartera'])->name('cartera');                // RF-15
@@ -148,7 +148,7 @@ Route::middleware(['auth'])->group(function () {
     // 4.7 EXPORTES (CSV/XLSX/PDF)
     // Roles: Admin | Supervisor
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('exportes')->as('exportes.')->middleware(['role:Administrador|Supervisor'])->group(function () {
+    Route::prefix('exportes')->as('exportes.')->middleware(['role:admin|Supervisor'])->group(function () {
         // Route::get('{reporte}.csv',  [ExportesController::class, 'csv'])->name('csv');   // RF-20
         // Route::get('{reporte}.xlsx', [ExportesController::class, 'xlsx'])->name('xlsx'); // RF-20
         // Route::get('{reporte}.pdf',  [ExportesController::class, 'pdf'])->name('pdf');   // RF-20
@@ -158,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
     // 4.8 SEGURIDAD: Dispositivos móviles
     // Roles: Admin | Supervisor
     // ───────────────────────────────────────────────────────────────────
-    Route::prefix('dispositivos')->as('dispositivos.')->middleware(['role:Administrador|Supervisor'])->group(function () {
+    Route::prefix('dispositivos')->as('dispositivos.')->middleware(['role:admin|Supervisor'])->group(function () {
         //     Route::post('registrar', [DispositivosController::class, 'registrar'])->name('registrar'); // RF-19
         //     Route::delete('{device}', [DispositivosController::class, 'revocar'])->name('revocar');    // RF-19 (cierre remoto)
     });
