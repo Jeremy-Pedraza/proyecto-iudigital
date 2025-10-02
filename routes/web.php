@@ -95,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('planificacion')->as('planificacion.')->middleware(['role:admin|Supervisor'])->group(function () {
 
         // // Catálogos de planificación
-        // Route::resource('clientes', ClientesController::class);          // RF-05/06
+        Route::resource('clientes', ClientesController::class);          // RF-05/06
         // Route::resource('comerciales', ComercialesController::class);    // RF-02
         // Route::resource('zonas', ZonasController::class);                // RF-02
         // Route::resource('reglas', ReglasController::class)->only(['index', 'update']); // RF-03

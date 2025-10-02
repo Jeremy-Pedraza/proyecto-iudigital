@@ -18,12 +18,16 @@ use App\Domain\Contracts\ListasRapidas\ListaRapidaRepositoryInterface;
 use App\Domain\Contracts\Auditoria\AuditoriaRepositoryInterface;
 use App\Domain\Contracts\Auditoria\AuditoriaServiceInterface;
 
+use App\Domain\Contracts\Clientes\ClienteRepositoryInterface;
+use App\Domain\Contracts\Clientes\ClienteServiceInterface;
+
 // Repositories
 use App\Infrastructure\Users\UserRepository;
 use App\Infrastructure\Roles\RoleRepository;
 use App\Infrastructure\Products\ProductRepository;
 use App\Infrastructure\ListasRapidas\ListaRapidaRepository;
 use App\Infrastructure\Auditoria\AuditoriaRepository;
+use App\Infrastructure\Clientes\ClienteRepository;
 
 // Services
 use App\Domain\Services\UserService;
@@ -31,6 +35,8 @@ use App\Domain\Services\RoleService;
 use App\Domain\Services\ProductService;
 use App\Domain\Services\ListaRapidaService;
 use App\Domain\Services\AuditoriaService;
+use App\Domain\Services\ClienteService;
+
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
@@ -62,6 +68,10 @@ class AppServiceProvider extends ServiceProvider
         // Auditoria
         $this->app->bind(AuditoriaRepositoryInterface::class, AuditoriaRepository::class);
         $this->app->bind(AuditoriaServiceInterface::class, AuditoriaService::class);
+
+        // Clientes
+        $this->app->bind(ClienteRepositoryInterface::class, ClienteRepository::class);
+        $this->app->bind(ClienteServiceInterface::class, ClienteService::class);
     }
 
     /**
