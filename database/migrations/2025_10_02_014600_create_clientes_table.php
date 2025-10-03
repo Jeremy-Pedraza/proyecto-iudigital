@@ -28,9 +28,11 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->index(['ciudad', 'estado', 'comercial_id']);
-            $table->spatialIndex('lat'); // opcional si manejas extensiones
+            // Índice compuesto para lat y lng (en lugar de SPATIAL)
+            $table->index(['lat', 'lng']);
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('clientes');

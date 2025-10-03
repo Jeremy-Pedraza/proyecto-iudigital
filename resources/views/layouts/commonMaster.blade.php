@@ -26,6 +26,9 @@
 
     <!-- Include Scripts for customizer, helper, analytics, config -->
     @include('layouts/sections/scriptsIncludes')
+
+    @yield('vendor-style')
+    @yield('page-style')
 </head>
 
 <body>
@@ -40,7 +43,6 @@
 
     <!-- Include Scripts -->
     @include('layouts/sections/scripts')
-
     @stack('scripts')
 </body>
 
