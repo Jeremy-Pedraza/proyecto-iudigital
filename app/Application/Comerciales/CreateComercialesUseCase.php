@@ -3,18 +3,14 @@
 namespace App\Application\Comerciales;
 
 use App\Domain\Contracts\Comerciales\ComercialesServiceInterface;
+use App\Models\Comercial;
 
 class CreateComercialesUseCase
 {
-    private $comercialesService;
+    public function __construct(private ComercialesServiceInterface $service) {}
 
-    public function __construct(ComercialesServiceInterface $comercialesService)
+    public function __invoke(array $data): Comercial
     {
-        $this->comercialesService = $comercialesService;
-    }
-
-    public function execute(array $data)
-    {
-        return $this->comercialesService->create($data);
+        return $this->service->create($data);
     }
 }

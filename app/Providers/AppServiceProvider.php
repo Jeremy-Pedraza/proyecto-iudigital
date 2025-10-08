@@ -24,6 +24,9 @@ use App\Domain\Contracts\Clientes\ClienteServiceInterface;
 use App\Domain\Contracts\Comerciales\ComercialesServiceInterface;
 use App\Domain\Contracts\Comerciales\ComercialesRepositoryInterface;
 
+use App\Domain\Contracts\Zonas\ZonaRepositoryInterface;
+use App\Domain\Contracts\Zonas\ZonaServiceInterface;
+
 // Repositories
 use App\Infrastructure\Users\UserRepository;
 use App\Infrastructure\Roles\RoleRepository;
@@ -32,6 +35,8 @@ use App\Infrastructure\ListasRapidas\ListaRapidaRepository;
 use App\Infrastructure\Auditoria\AuditoriaRepository;
 use App\Infrastructure\Clientes\ClienteRepository;
 use App\Infrastructure\Comerciales\ComercialesRepository;
+use App\Infrastructure\Zonas\ZonaRepository;
+
 
 // Services
 use App\Domain\Services\UserService;
@@ -41,6 +46,7 @@ use App\Domain\Services\ListaRapidaService;
 use App\Domain\Services\AuditoriaService;
 use App\Domain\Services\ClienteService;
 use App\Domain\Services\ComercialesService;
+use App\Domain\Services\ZonaService;
 
 
 
@@ -82,6 +88,10 @@ class AppServiceProvider extends ServiceProvider
         // Comerciales
         $this->app->bind(ComercialesRepositoryInterface::class, ComercialesRepository::class);
         $this->app->bind(ComercialesServiceInterface::class, ComercialesService::class);
+
+        // Zonas
+        $this->app->bind(ZonaRepositoryInterface::class, ZonaRepository::class);
+        $this->app->bind(ZonaServiceInterface::class, ZonaService::class);
     }
 
     /**

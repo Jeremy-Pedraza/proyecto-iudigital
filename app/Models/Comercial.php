@@ -2,63 +2,72 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comercial extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     protected $table = 'comerciales';
 
     protected $fillable = [
-        'nombre',
-        'apellido',
+        'name',
         'email',
         'telefono',
-        'codigo_empleado',
-        'departamento',
-        'direccion',
-        'fecha_ingreso',
-        'salario_base',
-        'activo'
+        'documento',
+        'zona_id',
+        'capacidad_paradas_dia',
+        'estado',
+        'user_id',
+        'notas'
     ];
 
     protected $casts = [
-        'activo' => 'boolean',
-        'fecha_ingreso' => 'date',
-        'salario_base' => 'decimal:2',
+        'capacidad_paradas_dia' => 'integer',
     ];
 
-    protected $dates = [
-        'fecha_ingreso',
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-
-    /**
-     * Get the full name attribute
-     */
-    public function getFullNameAttribute()
+    // Relaciones
+    public function user()
     {
-        return "{$this->nombre} {$this->apellido}";
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Scope para comerciales activos
-     */
-    public function scopeActivos($query)
+    public function zona()
     {
-        return $query->where('activo', true);
+        return $this->belongsTo(Zona::class, 'zona_id');
     }
 
-    /**
-     * Scope para filtrar por departamento
-     */
-    public function scopeDepartamento($query, $departamento)
+    public function clientes()
     {
-        return $query->where('departamento', $departamento);
+        return $this->hasMany(Cliente::class, 'comercial_id');
+    }
+
+    // Scopes de filtro/orden
+    public function scopeSearch($q, ?string $s)
+    {
+        if (!$s) return $q;
+        return $q->where(function ($qq) use ($s) {
+            $qq->where('name', 'like', "%$s%")
+                ->orWhere('email', 'like', "%$s%")
+                ->orWhere('documento', 'like', "%$s%");
+        });
+    }
+
+    public function scopeEstado($q, ?string $e)
+    {
+        return $e ? $q->where('estado', $e) : $q;
+    }
+
+    public function scopeZona($q, $id)
+    {
+        return $id ? $q->where('zona_id', $id) : $q;
+    }
+
+    public function scopeSort($q, ?string $by, ?string $dir)
+    {
+        $by = in_array($by, ['name', 'email', 'capacidad_paradas_dia', 'created_at']) ? $by : 'created_at';
+        $dir = $dir === 'asc' ? 'asc' : 'desc';
+        return $q->orderBy($by, $dir);
     }
 }

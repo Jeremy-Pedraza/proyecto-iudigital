@@ -3,18 +3,14 @@
 namespace App\Application\Comerciales;
 
 use App\Domain\Contracts\Comerciales\ComercialesServiceInterface;
+use App\Models\Comercial;
 
 class DeleteComercialesUseCase
 {
-    private $comercialesService;
+    public function __construct(private ComercialesServiceInterface $service) {}
 
-    public function __construct(ComercialesServiceInterface $comercialesService)
+    public function __invoke(Comercial $comercial): void
     {
-        $this->comercialesService = $comercialesService;
-    }
-
-    public function execute(string $id)
-    {
-        return $this->comercialesService->delete($id);
+        $this->service->delete($comercial);
     }
 }

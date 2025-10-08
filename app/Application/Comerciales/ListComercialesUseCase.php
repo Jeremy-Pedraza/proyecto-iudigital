@@ -3,18 +3,14 @@
 namespace App\Application\Comerciales;
 
 use App\Domain\Contracts\Comerciales\ComercialesServiceInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListComercialesUseCase
 {
-    private $comercialesService;
+    public function __construct(private ComercialesServiceInterface $service) {}
 
-    public function __construct(ComercialesServiceInterface $comercialesService)
+    public function __invoke(array $filters, int $perPage = 15): LengthAwarePaginator
     {
-        $this->comercialesService = $comercialesService;
-    }
-
-    public function execute()
-    {
-        return $this->comercialesService->getAll();
+        return $this->service->list($filters, $perPage);
     }
 }

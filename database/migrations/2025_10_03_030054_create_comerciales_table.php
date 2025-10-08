@@ -13,29 +13,22 @@ return new class extends Migration
     {
         Schema::create('comerciales', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 100);
-            $table->string('apellido', 100);
-            $table->string('email', 150)->unique();
-            $table->string('telefono', 20)->nullable();
-            $table->string('codigo_empleado', 50)->nullable()->unique();
-            $table->enum('departamento', [
-                'ventas',
-                'marketing',
-                'atencion_cliente',
-                'desarrollo_negocio'
-            ])->nullable();
-            $table->text('direccion')->nullable();
-            $table->date('fecha_ingreso')->nullable();
-            $table->decimal('salario_base', 10, 2)->nullable();
-            $table->boolean('activo')->default(true);
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('telefono', 50)->nullable();
+            $table->string('documento')->unique();
+            $table->foreignId('zona_id')->nullable()->constrained('zonas')->nullOnDelete();
+            $table->integer('capacidad_paradas_dia')->default(10);
+            $table->enum('estado', ['activo', 'inactivo'])->default('activo');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('notas')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            // Índices para mejorar el rendimiento
+            // Índices
+            $table->index('estado');
+            $table->index('zona_id');
             $table->index('email');
-            $table->index('codigo_empleado');
-            $table->index('departamento');
-            $table->index('activo');
         });
     }
 

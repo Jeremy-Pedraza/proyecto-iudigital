@@ -3,66 +3,49 @@
 namespace App\Infrastructure\Comerciales;
 
 use App\Domain\Contracts\Comerciales\ComercialesRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Models\Comercial;
 
 class ComercialesRepository implements ComercialesRepositoryInterface
 {
-    private $model;
-
-    public function __construct(Comercial $model)
+    public function paginate(array $f, int $perPage = 15): LengthAwarePaginator
     {
-        $this->model = $model;
+        return Comercial::query()
+            ->with(['user:id,name', 'zona:id,nombre'])
+            ->search($f['search'] ?? null)
+            ->estado($f['estado'] ?? null)
+            ->zona($f['zona_id'] ?? null)
+            ->sort($f['sort_by'] ?? null, $f['sort_dir'] ?? null)
+            ->paginate($perPage);
     }
 
-    public function getAll()
+    public function create(array $data): Comercial
     {
-        return $this->model->orderBy('nombre', 'asc')->get();
+        return Comercial::create($data);
     }
 
-    public function findById(string $id)
+    public function update(Comercial $comercial, array $data): Comercial
     {
-        return $this->model->find($id);
+        $comercial->update($data);
+        return $comercial;
     }
 
-    public function create(array $data)
+    public function delete(Comercial $comercial): void
     {
-        return $this->model->create([
-            'nombre' => $data['nombre'],
-            'apellido' => $data['apellido'],
-            'email' => $data['email'],
-            'telefono' => $data['telefono'],
-            'codigo_empleado' => $data['codigo_empleado'],
-            'departamento' => $data['departamento'],
-            'direccion' => $data['direccion'],
-            'fecha_ingreso' => $data['fecha_ingreso'],
-            'salario_base' => $data['salario_base'],
-            'activo' => $data['activo'] ?? true,
-        ]);
+        $comercial->delete();
     }
 
-    public function update(string $id, array $data)
+    public function findById(int $id, array $with = []): ?Comercial
     {
-        $comercial = $this->findById($id);
-
-        $comercial->update([
-            'nombre' => $data['nombre'],
-            'apellido' => $data['apellido'],
-            'email' => $data['email'],
-            'telefono' => $data['telefono'],
-            'codigo_empleado' => $data['codigo_empleado'],
-            'departamento' => $data['departamento'],
-            'direccion' => $data['direccion'],
-            'fecha_ingreso' => $data['fecha_ingreso'],
-            'salario_base' => $data['salario_base'],
-            'activo' => $data['activo'] ?? true,
-        ]);
-
-        return $comercial->fresh();
+        $q = Comercial::query();
+        if (!empty($with)) {
+            $q->with($with);
+        }
+        return $q->find($id);
     }
 
-    public function delete(string $id)
+    public function getAllActive(): \Illuminate\Database\Eloquent\Collection
     {
-        $comercial = $this->findById($id);
-        return $comercial->delete();
+        return Comercial::where('estado', 'activo')->get();
     }
 }
