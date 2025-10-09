@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('clientes.update', $cliente) }}">
+    <form method="POST" action="{{ route('planificacion.clientes.update', $cliente) }}">
         @method('PUT')
         @csrf
         <div class="row g-3">

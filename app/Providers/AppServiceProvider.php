@@ -27,6 +27,12 @@ use App\Domain\Contracts\Comerciales\ComercialesRepositoryInterface;
 use App\Domain\Contracts\Zonas\ZonaRepositoryInterface;
 use App\Domain\Contracts\Zonas\ZonaServiceInterface;
 
+use App\Domain\Contracts\Reglas\ReglaRepositoryInterface;
+use App\Domain\Contracts\Reglas\ReglaServiceInterface;
+
+use App\Domain\Contracts\Rutas\RutaRepositoryInterface;
+use App\Domain\Contracts\Rutas\RutaServiceInterface;
+
 // Repositories
 use App\Infrastructure\Users\UserRepository;
 use App\Infrastructure\Roles\RoleRepository;
@@ -36,6 +42,8 @@ use App\Infrastructure\Auditoria\AuditoriaRepository;
 use App\Infrastructure\Clientes\ClienteRepository;
 use App\Infrastructure\Comerciales\ComercialesRepository;
 use App\Infrastructure\Zonas\ZonaRepository;
+use App\Infrastructure\Reglas\ReglaRepository;
+use App\Infrastructure\Rutas\RutaRepository;
 
 
 // Services
@@ -47,8 +55,10 @@ use App\Domain\Services\AuditoriaService;
 use App\Domain\Services\ClienteService;
 use App\Domain\Services\ComercialesService;
 use App\Domain\Services\ZonaService;
+use App\Domain\Services\ReglaService;
+use App\Domain\Services\RutaService;
 
-
+use App\Application\Rutas\GetPlannerDataUseCase;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
@@ -92,6 +102,25 @@ class AppServiceProvider extends ServiceProvider
         // Zonas
         $this->app->bind(ZonaRepositoryInterface::class, ZonaRepository::class);
         $this->app->bind(ZonaServiceInterface::class, ZonaService::class);
+
+        $this->app->bind(ReglaRepositoryInterface::class, ReglaRepository::class);
+
+        // Bind del servicio
+        $this->app->bind(ReglaServiceInterface::class, ReglaService::class);
+
+        // Registrar Repository
+        $this->app->singleton(RutaRepositoryInterface::class, RutaRepository::class);
+
+        // Registrar Service
+        $this->app->singleton(RutaServiceInterface::class, RutaService::class);
+
+        // Registrar Use Cases (se resuelven automáticamente por inyección de dependencias)
+        $this->app->bind(
+            GetPlannerDataUseCase::class,
+            fn($app) => new GetPlannerDataUseCase(
+                $app->make(RutaServiceInterface::class)
+            )
+        );
     }
 
     /**

@@ -95,13 +95,13 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('planificacion')->as('planificacion.')->middleware(['role:admin|Supervisor'])->group(function () {
 
         // // Catálogos de planificación
-        Route::resource('clientes', ClientesController::class);          // RF-05/06
+        Route::resource('clientes', ClientesController::class)->parameters(['clientes' => 'cliente']);          // RF-05/06
         Route::resource('comerciales', ComercialesController::class)->parameters(['comerciales' => 'comercial']);;    // RF-02
         Route::resource('zonas', ZonasController::class);              // RF-02
-        // Route::resource('reglas', ReglasController::class)->only(['index', 'update']); // RF-03
+        Route::resource('reglas', ReglasController::class)->only(['index', 'update']); // RF-03
 
         // // Rutas: planificar / ver / editar / publicar
-        // Route::get('rutas/planificar', [RutaPlannerController::class, 'create'])->name('rutas.planificar.form'); // Form UI
+        Route::get('rutas/planificar', [RutaPlannerController::class, 'create'])->name('rutas.planificar.form'); // Form UI
         // Route::post('rutas/planificar', [RutaPlannerController::class, 'store'])->name('rutas.planificar');      // RF-01/02/03
 
         // Route::resource('rutas', RutasController::class)->only(['index', 'show', 'update', 'destroy']); // RF-04
