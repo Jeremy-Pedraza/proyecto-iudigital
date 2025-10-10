@@ -24,6 +24,7 @@ class Parada extends Model
         'tiempo_desde_anterior_minutos',
         'check_in',
         'check_out',
+        'notas',
         'lat_check_in',
         'lng_check_in',
         'estado',
