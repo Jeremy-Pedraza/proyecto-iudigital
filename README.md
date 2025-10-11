@@ -1,3 +1,10 @@
+<p align="center"></p>
+
+<p align="center">
+   <a href="https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/" target="_blank">
+      <img src="https://cdn.themeselection.com/ts-assets/materio/logo/logo.png" alt="materio-logo" width="40px" height="auto">
+   </a>
+</p>
 # Guía Completa de Despliegue - SIGERUTA Laravel 11
 
 ## 📋 Tabla de Contenidos
