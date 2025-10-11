@@ -93,21 +93,19 @@ class RutaPlannerController extends Controller
      */
     public function preview(Request $request)
     {
-        $filtros = $request->only(['comercial_id', 'ciudad', 'frecuencia', 'prioridad_min']);
+        $filtros = $request->only(['comercial_id', 'ciudad', 'frecuencia_filtro', 'prioridad_min']);
 
         $clientes = $this->rutaService->getClientesElegibles($filtros);
 
         return response()->json([
             'success' => true,
             'total_clientes' => $clientes->count(),
-            'clientes' => $clientes->map(fn($c) => [
+            'clientes' => $clientes->take(20)->map(fn($c) => [
                 'id' => $c->id,
                 'razon_social' => $c->razon_social,
                 'ciudad' => $c->ciudad,
-                'frecuencia' => $c->frecuencia_visita,
+                'frecuencia' => ucfirst($c->frecuencia_visita),
                 'prioridad' => $c->prioridad,
-                'lat' => $c->lat,
-                'lng' => $c->lng,
             ]),
         ]);
     }

@@ -62,4 +62,9 @@ interface RutaRepositoryInterface
      * Obtener estadísticas de rutas
      */
     public function getEstadisticas(array $filters = []): array;
+
+    /**
+     * Actualizar el orden secuencial de las paradas de una ruta
+     */
+    public function actualizarOrdenParadas(Ruta $ruta, array $orden): void;
 }

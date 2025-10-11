@@ -18,35 +18,35 @@ return new class extends Migration
             $table->time('hora_estimada_llegada')->nullable();
             $table->time('hora_estimada_salida')->nullable();
             $table->integer('duracion_estimada_minutos')->default(30);
-            $table->integer('orden_secuencia');
+            $table->integer('orden_secuencia')->default(0);
 
-            // Navegación
+            // Métricas de desplazamiento
             $table->decimal('distancia_desde_anterior_km', 10, 2)->nullable();
             $table->integer('tiempo_desde_anterior_minutos')->nullable();
 
-            // Ejecución (cuando se realiza la visita)
+            // Ejecución (check-in/out)
             $table->timestamp('check_in')->nullable();
             $table->timestamp('check_out')->nullable();
-            $table->decimal('lat_check_in', 10, 8)->nullable();
-            $table->decimal('lng_check_in', 11, 8)->nullable();
+            $table->decimal('lat_check_in', 10, 7)->nullable();
+            $table->decimal('lng_check_in', 10, 7)->nullable();
 
-            // Estado y resultado
-            $table->enum('estado', ['pendiente', 'en_ruta', 'completada', 'no_atendida', 'cancelada', 'reprogramada'])->default('pendiente');
-            $table->string('motivo_no_atencion', 200)->nullable();
+            // Estado y resultados
+            $table->enum('estado', ['pendiente', 'en_ruta', 'completada', 'no_atendida'])
+                  ->default('pendiente');
+            $table->string('motivo_no_atencion')->nullable();
+            $table->text('notas')->nullable();
             $table->text('notas_visita')->nullable();
 
-            // Referencias a operaciones
-            $table->foreignId('pedido_id')->nullable()->constrained('pedidos')->nullOnDelete();
-            $table->foreignId('cobro_id')->nullable()->constrained('cobros')->nullOnDelete();
+            // Relaciones con pedidos/cobros (opcional)
+            //$table->foreignId('pedido_id')->nullable()->constrained('pedidos')->nullOnDelete();
+            //$table->foreignId('cobro_id')->nullable()->constrained('cobros')->nullOnDelete();
 
             $table->timestamps();
             $table->softDeletes();
 
             // Índices
             $table->index(['ruta_id', 'fecha_planificada', 'orden_secuencia']);
-            $table->index(['cliente_id', 'fecha_planificada']);
             $table->index('estado');
-            $table->unique(['ruta_id', 'fecha_planificada', 'orden_secuencia']);
         });
     }
 

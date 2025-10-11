@@ -6,6 +6,7 @@
     @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
 @endsection
 
+@include('layouts.errors.auth-error-modal')
 
 @section('content')
     <div class="position-relative">

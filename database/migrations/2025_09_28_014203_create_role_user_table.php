@@ -13,11 +13,11 @@ return new class extends Migration
 
             $table->foreignId('role_id')
                 ->constrained('roles')
-                ->cascadeOnDelete()->index();
+                ->cascadeOnDelete();
 
             $table->foreignId('user_id')
                 ->constrained('users')
-                ->cascadeOnDelete()->index();
+                ->cascadeOnDelete();
 
             $table->timestamps();
 

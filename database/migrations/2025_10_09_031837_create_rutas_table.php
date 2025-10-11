@@ -10,25 +10,24 @@ return new class extends Migration
     {
         Schema::create('rutas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 200);
+
+            // Información básica
+            $table->string('nombre');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->enum('tipo_periodo', ['diario', 'semanal', 'mensual'])->default('semanal');
-
-            // Comercial asignado
             $table->foreignId('comercial_id')->constrained('users')->onDelete('cascade');
 
-            // Restricciones
+            // Restricciones de jornada
             $table->integer('max_paradas_dia')->default(20);
             $table->time('hora_inicio_jornada')->default('08:00:00');
             $table->time('hora_fin_jornada')->default('18:00:00');
             $table->integer('duracion_pausa_minutos')->default(60);
 
-            // Filtros aplicados (JSON)
+            // Filtros y configuración
             $table->json('filtros_clientes')->nullable();
-
-            // Opciones del algoritmo
-            $table->enum('prioridad_criterio', ['distancia', 'tiempo', 'prioridad_cliente', 'balanceado'])->default('balanceado');
+            $table->enum('prioridad_criterio', ['distancia', 'tiempo', 'prioridad_cliente', 'balanceado'])
+                  ->default('balanceado');
             $table->boolean('respetar_ventanas_horarias')->default(true);
             $table->boolean('balancear_carga')->default(true);
 
@@ -38,10 +37,11 @@ return new class extends Migration
             $table->integer('total_paradas')->default(0);
             $table->integer('dias_planificados')->default(0);
 
-            // Estado
-            $table->enum('estado', ['borrador', 'calculada', 'publicada', 'en_ejecucion', 'completada', 'cancelada'])->default('borrador');
+            // Estados: borrador -> calculada -> publicada -> en_ejecucion -> completada
+            $table->enum('estado', ['borrador', 'calculada', 'publicada', 'en_ejecucion', 'completada', 'cancelada'])
+                  ->default('borrador');
 
-            // Metadata
+            // Notas y publicación
             $table->text('notas')->nullable();
             $table->timestamp('fecha_publicacion')->nullable();
             $table->foreignId('publicado_por')->nullable()->constrained('users');
@@ -50,8 +50,8 @@ return new class extends Migration
             $table->softDeletes();
 
             // Índices
-            $table->index(['comercial_id', 'fecha_inicio', 'estado']);
-            $table->index('estado');
+            $table->index(['comercial_id', 'estado']);
+            $table->index(['fecha_inicio', 'fecha_fin']);
         });
     }
 

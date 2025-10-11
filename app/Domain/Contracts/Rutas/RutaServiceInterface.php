@@ -62,4 +62,9 @@ interface RutaServiceInterface
      * Calcular métricas de la ruta
      */
     public function calcularMetricas(Ruta $ruta): void;
+
+    /**
+     * Reordenar paradas de la ruta (drag & drop)
+     */
+    public function reordenarParadas(Ruta $ruta, array $nuevoOrden): void;
 }

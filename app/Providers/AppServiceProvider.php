@@ -66,68 +66,64 @@ use Illuminate\Support\Facades\Vite;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        // Users
-        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
-        $this->app->bind(UserServiceInterface::class, UserService::class);
+  /**
+   * Register any application services.
+   */
+  public function register(): void
+  {
+    // Users
+    $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+    $this->app->bind(UserServiceInterface::class, UserService::class);
 
-        // Roles
-        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
-        $this->app->bind(RoleServiceInterface::class, RoleService::class);
+    // Roles
+    $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+    $this->app->bind(RoleServiceInterface::class, RoleService::class);
 
-        // Products
-        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
-        $this->app->bind(ProductServiceInterface::class, ProductService::class);
+    // Products
+    $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+    $this->app->bind(ProductServiceInterface::class, ProductService::class);
 
-        // ListasRapidas
-        $this->app->bind(ListaRapidaRepositoryInterface::class, ListaRapidaRepository::class);
-        $this->app->bind(ListaRapidaServiceInterface::class, ListaRapidaService::class);
+    // ListasRapidas
+    $this->app->bind(ListaRapidaRepositoryInterface::class, ListaRapidaRepository::class);
+    $this->app->bind(ListaRapidaServiceInterface::class, ListaRapidaService::class);
 
-        // Auditoria
-        $this->app->bind(AuditoriaRepositoryInterface::class, AuditoriaRepository::class);
-        $this->app->bind(AuditoriaServiceInterface::class, AuditoriaService::class);
+    // Auditoria
+    $this->app->bind(AuditoriaRepositoryInterface::class, AuditoriaRepository::class);
+    $this->app->bind(AuditoriaServiceInterface::class, AuditoriaService::class);
 
-        // Clientes
-        $this->app->bind(ClienteRepositoryInterface::class, ClienteRepository::class);
-        $this->app->bind(ClienteServiceInterface::class, ClienteService::class);
+    // Clientes
+    $this->app->bind(ClienteRepositoryInterface::class, ClienteRepository::class);
+    $this->app->bind(ClienteServiceInterface::class, ClienteService::class);
 
-        // Comerciales
-        $this->app->bind(ComercialesRepositoryInterface::class, ComercialesRepository::class);
-        $this->app->bind(ComercialesServiceInterface::class, ComercialesService::class);
+    // Comerciales
+    $this->app->bind(ComercialesRepositoryInterface::class, ComercialesRepository::class);
+    $this->app->bind(ComercialesServiceInterface::class, ComercialesService::class);
 
-        // Zonas
-        $this->app->bind(ZonaRepositoryInterface::class, ZonaRepository::class);
-        $this->app->bind(ZonaServiceInterface::class, ZonaService::class);
+    // Zonas
+    $this->app->bind(ZonaRepositoryInterface::class, ZonaRepository::class);
+    $this->app->bind(ZonaServiceInterface::class, ZonaService::class);
 
-        $this->app->bind(ReglaRepositoryInterface::class, ReglaRepository::class);
+    $this->app->bind(ReglaRepositoryInterface::class, ReglaRepository::class);
 
-        // Bind del servicio
-        $this->app->bind(ReglaServiceInterface::class, ReglaService::class);
+    // Bind del servicio
+    $this->app->bind(ReglaServiceInterface::class, ReglaService::class);
 
-        // Registrar Repository
-        $this->app->singleton(RutaRepositoryInterface::class, RutaRepository::class);
+    // Registrar Repository
+    $this->app->singleton(RutaRepositoryInterface::class, RutaRepository::class);
 
-        // Registrar Service
-        $this->app->singleton(RutaServiceInterface::class, RutaService::class);
+    // Registrar Service
+    $this->app->singleton(RutaServiceInterface::class, RutaService::class);
 
-        // Registrar Use Cases (se resuelven automáticamente por inyección de dependencias)
-        $this->app->bind(
-            GetPlannerDataUseCase::class,
-            fn($app) => new GetPlannerDataUseCase(
-                $app->make(RutaServiceInterface::class)
-            )
-        );
-    }
+    // Registrar Use Cases (se resuelven automáticamente por inyección de dependencias)
+    $this->app->bind(GetPlannerDataUseCase::class, fn($app) => new GetPlannerDataUseCase($app->make(RutaServiceInterface::class)));
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        Paginator::useBootstrapFive();
-    }
+  }
+
+  /**
+   * Bootstrap any application services.
+   */
+  public function boot(): void
+  {
+    Paginator::useBootstrapFive();
+  }
 }

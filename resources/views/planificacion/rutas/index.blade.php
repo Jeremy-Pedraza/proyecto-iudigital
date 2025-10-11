@@ -4,9 +4,9 @@
 
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <h4 class="mb-0">Rutas</h4>
+        <h4 class="mb-0">Gestión de Rutas</h4>
         <a href="{{ route('planificacion.rutas.planificar.form') }}" class="btn btn-primary">
-            <i class="fa-solid fa-route"></i> Planificar nueva ruta
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Planificar nueva ruta
         </a>
     </div>
 
@@ -24,6 +24,17 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $e)
+                    <li>{{ $e }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <div class="card mb-4">
         <div class="card-header">
             <form method="GET" action="{{ route('planificacion.rutas.index') }}" class="row g-3 align-items-end">
@@ -36,25 +47,26 @@
                     <label class="form-label">Estado</label>
                     <select name="estado" class="form-select">
                         <option value="">-- Todos --</option>
-                        @foreach (['borrador' => 'Borrador', 'planificada' => 'Planificada', 'publicada' => 'Publicada', 'en_curso' => 'En curso', 'completada' => 'Completada', 'cancelada' => 'Cancelada'] as $k => $v)
+                        @foreach (['borrador' => 'Borrador', 'calculada' => 'Calculada', 'publicada' => 'Publicada', 'en_ejecucion' => 'En ejecución', 'completada' => 'Completada', 'cancelada' => 'Cancelada'] as $k => $v)
                             <option value="{{ $k }}" @selected(($filters['estado'] ?? '') === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Desde</label>
-                    <input type="date" name="fecha_desde" value="{{ $filters['fecha_desde'] ?? '' }}"
+                    <input type="date" name="fecha_inicio" value="{{ $filters['fecha_inicio'] ?? '' }}"
                            class="form-control">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Hasta</label>
-                    <input type="date" name="fecha_hasta" value="{{ $filters['fecha_hasta'] ?? '' }}"
+                    <input type="date" name="fecha_fin" value="{{ $filters['fecha_fin'] ?? '' }}"
                            class="form-control">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Ordenar por</label>
                     <select name="sort_by" class="form-select">
-                        <option value="fecha" @selected(($filters['sort_by'] ?? 'fecha') === 'fecha')>Fecha</option>
+                        <option value="created_at" @selected(($filters['sort_by'] ?? 'created_at') === 'created_at')>Fecha creación</option>
+                        <option value="fecha_inicio" @selected(($filters['sort_by'] ?? '') === 'fecha_inicio')>Fecha inicio</option>
                         <option value="nombre" @selected(($filters['sort_by'] ?? '') === 'nombre')>Nombre</option>
                         <option value="estado" @selected(($filters['sort_by'] ?? '') === 'estado')>Estado</option>
                     </select>
@@ -73,11 +85,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Fecha</th>
+                        <th>Período</th>
                         <th>Comercial</th>
                         <th>Paradas</th>
                         <th>Distancia</th>
-                        <th>Tiempo</th>
                         <th>Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -85,27 +96,30 @@
                 <tbody>
                     @forelse($rutas as $r)
                         <tr>
-                            <td>{{ $r->id }}</td>
+                            <td><strong>#{{ $r->id }}</strong></td>
                             <td>{{ $r->nombre }}</td>
-                            <td>{{ $r->fecha->format('d/m/Y') }}</td>
+                            <td>
+                                <small>{{ $r->fecha_inicio->format('d/m/Y') }} - {{ $r->fecha_fin->format('d/m/Y') }}</small>
+                            </td>
                             <td>{{ $r->comercial->name ?? '—' }}</td>
-                            <td>{{ $r->paradas_count ?? 0 }}</td>
+                            <td>
+                                <span class="badge bg-label-info">{{ $r->paradas_count ?? 0 }}</span>
+                            </td>
                             <td>{{ number_format($r->distancia_total_km ?? 0, 1) }} km</td>
-                            <td>{{ $r->tiempo_estimado_min ?? 0 }} min</td>
                             <td>
                                 @php
                                     $badgeClass = match($r->estado) {
                                         'borrador' => 'secondary',
-                                        'planificada' => 'info',
+                                        'calculada' => 'info',
                                         'publicada' => 'primary',
-                                        'en_curso' => 'warning',
+                                        'en_ejecucion' => 'warning',
                                         'completada' => 'success',
                                         'cancelada' => 'danger',
                                         default => 'secondary'
                                     };
                                 @endphp
-                                <span class="badge bg-label-{{ $badgeClass }}">
-                                    {{ ucfirst($r->estado) }}
+                                <span class="badge bg-{{ $badgeClass }}">
+                                    {{ ucfirst(str_replace('_', ' ', $r->estado)) }}
                                 </span>
                             </td>
                             <td class="text-end">
@@ -113,13 +127,13 @@
                                    class="btn btn-sm btn-icon btn-outline-secondary" title="Ver">
                                     <i class="fa-regular fa-eye"></i>
                                 </a>
-                                @if($r->esEditable())
+                                @if(in_array($r->estado, ['borrador', 'calculada']))
                                     <a href="{{ route('planificacion.rutas.editor', $r) }}"
                                        class="btn btn-sm btn-icon btn-outline-primary" title="Editar">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
                                 @endif
-                                @if($r->estado === 'planificada' && !$r->estaPublicada())
+                                @if($r->estado === 'calculada')
                                     <form action="{{ route('planificacion.rutas.publicar', $r) }}"
                                           method="POST" class="d-inline">
                                         @csrf
@@ -129,22 +143,24 @@
                                         </button>
                                     </form>
                                 @endif
-                                <form action="{{ route('planificacion.rutas.destroy', $r) }}"
-                                      method="POST" id="delete-form-{{ $r->id }}" class="d-inline">
-                                    @csrf @method('DELETE')
-                                    <button type="button"
-                                            class="btn btn-sm btn-icon btn-outline-danger js-open-delete"
-                                            data-form="delete-form-{{ $r->id }}"
-                                            data-name="{{ $r->nombre }}"
-                                            title="Eliminar">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
+                                @if(!in_array($r->estado, ['en_ejecucion', 'completada']))
+                                    <form action="{{ route('planificacion.rutas.destroy', $r) }}"
+                                          method="POST" id="delete-form-{{ $r->id }}" class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button type="button"
+                                                class="btn btn-sm btn-icon btn-outline-danger js-open-delete"
+                                                data-form="delete-form-{{ $r->id }}"
+                                                data-name="{{ $r->nombre }}"
+                                                title="Eliminar">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">
+                            <td colspan="8" class="text-center text-muted py-4">
                                 No hay rutas para los filtros aplicados.
                             </td>
                         </tr>
