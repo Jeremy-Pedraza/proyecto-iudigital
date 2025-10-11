@@ -6,6 +6,7 @@ use App\Http\Requests\Clientes\StoreClienteRequest;
 use App\Http\Requests\Clientes\UpdateClienteRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Cliente;
+use App\Models\Comercial;
 use App\Application\Clientes\{
     ListClientesUseCase,
     CreateClienteUseCase,
@@ -34,7 +35,8 @@ class ClientesController extends Controller
 
     public function create()
     {
-        return view('planificacion.clientes.create');
+        $comerciales = Comercial::where('estado', 'activo')->get();
+        return view('planificacion.clientes.create', compact('comerciales'));
     }
 
     public function store(StoreClienteRequest $request)

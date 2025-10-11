@@ -8,6 +8,7 @@ use App\Models\Parada;
 use App\Models\Cliente;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class RutaRepository implements RutaRepositoryInterface
 {
@@ -75,38 +76,81 @@ class RutaRepository implements RutaRepositoryInterface
       })
       ->get();
   }
-
   public function getClientesDisponibles(array $filters): Collection
-  {
+{
     $query = Cliente::query()
-      ->with('comercial:id,name')
-      ->where('estado', 'activo');
+        ->with('comercial:id,name')
+        ->where('estado', 'activo');
+
+    // Debug: contar antes de filtros
+    Log::info('Total clientes activos: ' . $query->count());
 
     // Aplicar filtros
     if ($ciudad = $filters['ciudad'] ?? null) {
-      $query->ciudad($ciudad);
+        $query->ciudad($ciudad);
+        Log::info("Filtro ciudad aplicado: {$ciudad}, resultado: " . $query->count());
     }
 
     if ($frecuencia = $filters['frecuencia'] ?? null) {
-      $query->frecuencia($frecuencia);
+        $query->frecuencia($frecuencia);
+        Log::info("Filtro frecuencia aplicado: {$frecuencia}, resultado: " . $query->count());
     }
 
     if ($prioridadMin = $filters['prioridad_min'] ?? null) {
-      $query->where('prioridad', '>=', $prioridadMin);
+        $query->where('prioridad', '>=', $prioridadMin);
+        Log::info("Filtro prioridad aplicado: >= {$prioridadMin}, resultado: " . $query->count());
     }
 
     if ($comercialId = $filters['comercial_id'] ?? null) {
-      $query->comercial($comercialId);
+        $query->comercial($comercialId);
+        Log::info("Filtro comercial_id aplicado: {$comercialId}, resultado: " . $query->count());
     }
 
     // Solo clientes con coordenadas válidas
     $query->whereNotNull('lat')
-      ->whereNotNull('lng')
-      ->where('lat', '!=', 0)
-      ->where('lng', '!=', 0);
+        ->whereNotNull('lng')
+        ->where('lat', '!=', 0)
+        ->where('lng', '!=', 0);
+
+    Log::info('Después de validar coordenadas: ' . $query->count());
+
+    // Debug: mostrar el SQL generado
+    Log::info('SQL: ' . $query->toSql());
+    Log::info('Bindings: ' . json_encode($query->getBindings()));
 
     return $query->get();
-  }
+}
+  // public function getClientesDisponibles(array $filters): Collection
+  // {
+  //   $query = Cliente::query()
+  //     ->with('comercial:id,name')
+  //     ->where('estado', 'activo');
+
+  //   // Aplicar filtros
+  //   if ($ciudad = $filters['ciudad'] ?? null) {
+  //     $query->ciudad($ciudad);
+  //   }
+
+  //   if ($frecuencia = $filters['frecuencia'] ?? null) {
+  //     $query->frecuencia($frecuencia);
+  //   }
+
+  //   if ($prioridadMin = $filters['prioridad_min'] ?? null) {
+  //     $query->where('prioridad', '>=', $prioridadMin);
+  //   }
+
+  //   if ($comercialId = $filters['comercial_id'] ?? null) {
+  //     $query->comercial($comercialId);
+  //   }
+
+  //   // Solo clientes con coordenadas válidas
+  //   $query->whereNotNull('lat')
+  //     ->whereNotNull('lng')
+  //     ->where('lat', '!=', 0)
+  //     ->where('lng', '!=', 0);
+
+  //   return $query->get();
+  // }
 
   public function existeSolapamiento(
     int $comercialId,

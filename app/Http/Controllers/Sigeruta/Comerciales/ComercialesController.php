@@ -38,7 +38,9 @@ class ComercialesController extends Controller
 
     public function create()
     {
-        return view('planificacion.comerciales.create');
+          // 👇 Cargar zonas para el formulario de creación
+          $zonas = Zona::orderBy('nombre')->get(['id', 'nombre']);
+        return view('planificacion.comerciales.create', compact('zonas'));
     }
 
     public function store(StoreComercialRequest $request)
