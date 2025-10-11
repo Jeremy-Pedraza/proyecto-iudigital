@@ -1,12 +1,42 @@
-<p align="center"></p>
+<div align="center">
 
-<p align="center">
-   <a href="https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/" target="_blank">
-      <img src="https://cdn.themeselection.com/ts-assets/materio/logo/logo.png" alt="materio-logo" width="40px" height="auto">
-   </a>
-</p>
+# **SIGERUTA**
 
-<kbd>[![Materio - Bootstrap 5 HTML Laravel Admin Template Demo Screenshot](https://cdn.themeselection.com/ts-assets/materio/materio-bootstrap-laravel-admin-template-free/banner/banner.png)](https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/)</kbd>
+**Sistema Inteligente de Gestión de Rutas Comerciales con IA**  
+*Especificación de Requerimientos de Software (SRS)*
+
+<a href="https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/" target="_blank">
+  <img src="https://cdn.themeselection.com/ts-assets/materio/logo/logo.png" alt="materio-logo" width="56" />
+</a>
+
+[![Banner – Materio](https://cdn.themeselection.com/ts-assets/materio/materio-bootstrap-laravel-admin-template-free/banner/banner.png)](https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/)
+
+</div>
+
+---
+
+## 📌 Resumen
+**SIGERUTA** es un proyecto académico que define los requerimientos para un sistema con apoyo de IA orientado a la optimización y gestión de rutas comerciales.
+
+---
+
+## 👥 Integrantes
+- Jeremy Iván Pedraza Hernández  
+- Katerin Vanesa López Moros  
+- Bayron Meza Guzmán  
+
+**Docente:** Julio César Martínez  
+**Espacio académico:** Proyecto Integrado I — **PREICA2502B010095**
+
+---
+
+## 🏫 Institución
+**Ingeniería de Software y Datos**  
+**Facultad de Ingeniería y Ciencias Agropecuarias**  
+**Institución Universitaria Digital de Antioquia**  
+**Año:** 2025
+
+
 
 # Guía Completa de Despliegue - SIGERUTA Laravel 11
 
