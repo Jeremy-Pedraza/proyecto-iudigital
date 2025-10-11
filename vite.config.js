@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
 import html from '@rollup/plugin-html';
 import { glob } from 'glob';
+import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite';
 
 /**
  * Get Files from a directory
@@ -24,6 +24,10 @@ const vendorJsFiles = GetFilesArray('resources/assets/vendor/js/*.js');
 const LibsJsFiles = GetFilesArray('resources/assets/vendor/libs/**/*.js');
 
 /**
+ * CSS & Scss Files
+ */
+const AssetsCssFiles = GetFilesArray('resources/assets/css/**/*.css');
+/**
  * Scss Files
  */
 // Processing Core, Themes & Pages Scss Files
@@ -43,6 +47,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/assets/css/demo.css',
         'resources/js/app.js',
+        ...AssetsCssFiles,
         ...pageJsFiles,
         ...vendorJsFiles,
         ...LibsJsFiles,

@@ -18,10 +18,12 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0">Editar usuario</h4>
         <div>
-            <a href="{{ route('admin.usuarios.show', $usuario) }}" class="btn btn-outline-secondary me-2"><i
-                    class="ti ti-eye"></i> Ver</a>
-            <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline-secondary"><i class="ti ti-arrow-left"></i>
-                Volver</a>
+            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-secondary me-2">
+                <i class="ti ti-eye"></i> Ver
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
+                <i class="ti ti-arrow-left"></i> Volver
+            </a>
         </div>
     </div>
 
@@ -37,12 +39,14 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('admin.usuarios.update', $usuario) }}" method="POST" class="row g-3">
-                @csrf @method('PUT')
+            {{-- FORMULARIO DE ACTUALIZACIÓN --}}
+            <form action="{{ route('admin.users.update', $user) }}" method="POST" class="row g-3">
+                @csrf
+                @method('PUT')
 
                 <div class="col-md-6">
-                    <label class="form-label">Nombre completo <span class="text-danger">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $usuario->name) }}"
+                    <label class="form-label">Nombres <span class="text-danger">*</span></label>
+                    <input type="text" name="name" value="{{ old('name', $user->name) }}"
                         class="form-control @error('name') is-invalid @enderror">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -50,8 +54,17 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                    <input type="text" name="lastname" value="{{ old('lastname', $user->lastname) }}"
+                        class="form-control @error('lastname') is-invalid @enderror">
+                    @error('lastname')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
                     <label class="form-label">Usuario</label>
-                    <input type="text" name="username" value="{{ old('username', $usuario->username) }}"
+                    <input type="text" name="username" value="{{ old('username', $user->username) }}"
                         class="form-control @error('username') is-invalid @enderror">
                     @error('username')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -60,7 +73,7 @@
 
                 <div class="col-md-6">
                     <label class="form-label">Email <span class="text-danger">*</span></label>
-                    <input type="email" name="email" value="{{ old('email', $usuario->email) }}"
+                    <input type="email" name="email" value="{{ old('email', $user->email) }}"
                         class="form-control @error('email') is-invalid @enderror">
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -85,17 +98,19 @@
                     <label class="form-label">Rol</label>
                     @php
                         $selectedRole = null;
-                        if (method_exists($usuario, 'getRoleNames')) {
-                            $roleNames = $usuario->getRoleNames();
+                        if (method_exists($user, 'getRoleNames')) {
+                            $roleNames = $user->getRoleNames();
                             $selectedRole = $roleNames[0] ?? null;
                         } else {
-                            $selectedRole = $usuario->role ?? null;
+                            $selectedRole = $user->role ?? null;
                         }
                     @endphp
                     <select name="role" class="form-select @error('role') is-invalid @enderror">
                         <option value="">— Sin rol —</option>
                         @foreach ($roles as $label => $value)
-                            <option value="{{ $value }}" @selected(old('role', $selectedRole) === $value)>{{ $label }}</option>
+                            <option value="{{ $value }}" @selected(old('role', $selectedRole) === $value)>
+                                {{ $label }}
+                            </option>
                         @endforeach
                     </select>
                     @error('role')
@@ -106,21 +121,32 @@
                 <div class="col-md-2 d-flex align-items-center">
                     <div class="form-check mt-4">
                         <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1"
-                            {{ old('is_active', $usuario->is_active ?? true) ? 'checked' : '' }}>
+                            {{ old('is_active', $user->is_active ?? true) ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_active">Activo</label>
                     </div>
                 </div>
 
                 <div class="col-12">
-                    <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Guardar cambios</button>
-                    <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline-secondary">Cancelar</a>
-                    <form action="{{ route('admin.usuarios.destroy', $usuario) }}" method="POST"
-                        class="d-inline float-end" onsubmit="return confirm('¿Eliminar este usuario?');">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-outline-danger"><i class="ti ti-trash"></i> Eliminar</button>
-                    </form>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy"></i> Guardar cambios
+                    </button>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                 </div>
             </form>
+            {{-- FIN FORMULARIO DE ACTUALIZACIÓN --}}
+
+            <hr class="my-4">
+
+            {{-- FORMULARIO DE ELIMINACIÓN (SEPARADO) --}}
+            <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="ti ti-trash"></i> Eliminar usuario
+                </button>
+            </form>
+            {{-- FIN FORMULARIO DE ELIMINACIÓN --}}
         </div>
     </div>
 @endsection

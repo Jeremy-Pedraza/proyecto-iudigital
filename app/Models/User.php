@@ -13,13 +13,14 @@ class User extends Authenticatable
   use HasFactory, Notifiable;
 
   protected $fillable = [
-    'username',
+    'name',
     'lastname',
+    'username',
     'email',
     'password',
-    'name',
     'is_active',
     'last_login_at',
+    'email_verified_at',
   ];
 
   protected $hidden = ['password', 'remember_token'];
@@ -36,8 +37,12 @@ class User extends Authenticatable
 
   protected $appends = ['role_names'];
 
+  // ═══════════════════════════════════════════════════════════════
+  // RELACIONES
+  // ═══════════════════════════════════════════════════════════════
+
   /**
-   * @return BelongsToMany<\App\Models\Role>
+   * Relación muchos a muchos con roles
    */
   public function roles(): BelongsToMany
   {
@@ -45,31 +50,122 @@ class User extends Authenticatable
       ->withTimestamps();
   }
 
-  public function hasRole(string $role): bool
+  // ═══════════════════════════════════════════════════════════════
+  // MÉTODOS AUXILIARES PARA ROLES (estilo Spatie)
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Asignar uno o múltiples roles (reemplaza todos los existentes)
+   * Uso: $user->assignRole('Admin')
+   * Uso: $user->assignRole(['Admin', 'Supervisor'])
+   */
+  public function assignRole(string|array $roles): self
   {
-    $needle = mb_strtolower($role);
+    $roleIds = $this->getRoleIds($roles);
+    $this->roles()->sync($roleIds);
+
+    return $this;
+  }
+
+  /**
+   * Agregar rol(es) sin eliminar los existentes
+   * Uso: $user->giveRole('Admin')
+   */
+  public function giveRole(string|array $roles): self
+  {
+    $roleIds = $this->getRoleIds($roles);
+    $this->roles()->syncWithoutDetaching($roleIds);
+
+    return $this;
+  }
+
+  /**
+   * Remover rol(es) específico(s)
+   * Uso: $user->removeRole('Admin')
+   */
+  public function removeRole(string|array $roles): self
+  {
+    $roleIds = $this->getRoleIds($roles);
+    $this->roles()->detach($roleIds);
+
+    return $this;
+  }
+
+  /**
+   * Verificar si el usuario tiene un rol específico
+   * Uso: $user->hasRole('Admin')
+   * Uso: $user->hasRole(['Admin', 'Supervisor']) // tiene alguno
+   */
+  public function hasRole(string|array $roles): bool
+  {
+    if (is_string($roles)) {
+      $roles = [$roles];
+    }
+
+    $needle = array_map('mb_strtolower', $roles);
 
     // Si ya está cargada la relación, usa colección en memoria
     if ($this->relationLoaded('roles')) {
-      return $this->roles
-        ->pluck('name')
-        ->map(fn($n) => mb_strtolower($n))
-        ->contains($needle)
-        ||
-        $this->roles
-        ->pluck('slug')
-        ->map(fn($s) => mb_strtolower($s))
-        ->contains($needle);
+      return $this->roles->filter(function ($role) use ($needle) {
+        return in_array(mb_strtolower($role->name), $needle)
+          || in_array(mb_strtolower($role->slug), $needle);
+      })->isNotEmpty();
     }
 
-    // Si no está cargada, consulta directa (más eficiente)
+    // Si no está cargada, consulta directa
     return $this->roles()
       ->where(function ($q) use ($needle) {
-        $q->where(DB::raw('LOWER(name)'), $needle)
-          ->orWhere(DB::raw('LOWER(slug)'), $needle);
+        foreach ($needle as $role) {
+          $q->orWhere(DB::raw('LOWER(name)'), $role)
+            ->orWhere(DB::raw('LOWER(slug)'), $role);
+        }
       })
       ->exists();
   }
+
+  /**
+   * Verificar si tiene TODOS los roles especificados
+   * Uso: $user->hasAllRoles(['Admin', 'Supervisor'])
+   */
+  public function hasAllRoles(array $roles): bool
+  {
+    foreach ($roles as $role) {
+      if (!$this->hasRole($role)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Verificar si tiene AL MENOS UNO de los roles especificados
+   * Uso: $user->hasAnyRole(['Admin', 'Supervisor'])
+   */
+  public function hasAnyRole(array $roles): bool
+  {
+    return $this->hasRole($roles);
+  }
+
+  /**
+   * Obtener IDs de roles a partir de nombres o slugs
+   */
+  private function getRoleIds(string|array $roles): array
+  {
+    if (is_string($roles)) {
+      $roles = [$roles];
+    }
+
+    return Role::where(function ($q) use ($roles) {
+      foreach ($roles as $role) {
+        $q->orWhere('name', $role)
+          ->orWhere('slug', $role);
+      }
+    })->pluck('id')->toArray();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // MÉTODOS AUXILIARES
+  // ═══════════════════════════════════════════════════════════════
 
   public function isActive(): bool
   {
@@ -86,17 +182,46 @@ class User extends Authenticatable
     return $this->name ?: $this->username ?: $this->email;
   }
 
+  public function getFullNameAttribute(): string
+  {
+    return trim($this->name . ' ' . $this->lastname);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SCOPES
+  // ═══════════════════════════════════════════════════════════════
+
   public function scopeActive($query)
   {
     return $query->where('is_active', true);
   }
 
+  public function scopeWithRole($query, string $role)
+  {
+    return $query->whereHas('roles', function ($q) use ($role) {
+      $q->where('name', $role)->orWhere('slug', $role);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // ATRIBUTOS CALCULADOS
+  // ═══════════════════════════════════════════════════════════════
+
   public function getRoleNamesAttribute(): array
   {
-    // Evita fallback a columna eliminada; solo relación
     $roles = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
     return $roles->isNotEmpty()
       ? $roles->pluck('name')->values()->all()
       : [];
+  }
+
+  public function getFirstRoleAttribute(): ?Role
+  {
+    return $this->roles->first();
+  }
+
+  public function getFirstRoleNameAttribute(): ?string
+  {
+    return $this->roles->first()?->name;
   }
 }

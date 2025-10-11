@@ -18,9 +18,9 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0">Detalle de usuario</h4>
         <div>
-            <a href="{{ route('admin.usuarios.edit', $usuario) }}" class="btn btn-primary me-2"><i class="ti ti-edit"></i>
+            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary me-2"><i class="ti ti-edit"></i>
                 Editar</a>
-            <a href="{{ route('admin.usuarios.index') }}" class="btn btn-outline-secondary"><i class="ti ti-arrow-left"></i>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary"><i class="ti ti-arrow-left"></i>
                 Volver</a>
         </div>
     </div>
@@ -41,17 +41,17 @@
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-3">Nombre</dt>
-                        <dd class="col-sm-9">{{ $usuario->name }}</dd>
+                        <dd class="col-sm-9">{{ $user->name }}</dd>
 
                         <dt class="col-sm-3">Usuario</dt>
-                        <dd class="col-sm-9">{{ $usuario->username ?? '—' }}</dd>
+                        <dd class="col-sm-9">{{ $user->username ?? '—' }}</dd>
 
                         <dt class="col-sm-3">Email</dt>
-                        <dd class="col-sm-9">{{ $usuario->email }}</dd>
+                        <dd class="col-sm-9">{{ $user->email }}</dd>
 
                         <dt class="col-sm-3">Estado</dt>
                         <dd class="col-sm-9">
-                            @if ($usuario->is_active ?? true)
+                            @if ($user->is_active ?? true)
                                 <span class="badge bg-label-success">Activo</span>
                             @else
                                 <span class="badge bg-label-secondary">Inactivo</span>
@@ -60,24 +60,24 @@
 
                         <dt class="col-sm-3">Rol(es)</dt>
                         <dd class="col-sm-9">
-                            @if (method_exists($usuario, 'getRoleNames'))
-                                @forelse($usuario->getRoleNames() as $r)
+                            @if (method_exists($user, 'getRoleNames'))
+                                @forelse($user->getRoleNames() as $r)
                                     <span class="badge bg-label-primary me-1">{{ $r }}</span>
                                 @empty
                                     <span class="text-muted">Sin rol asignado</span>
                                 @endforelse
-                            @elseif(!empty($usuario->role))
-                                <span class="badge bg-label-primary">{{ $usuario->role }}</span>
+                            @elseif(!empty($user->role))
+                                <span class="badge bg-label-primary">{{ $user->role }}</span>
                             @else
                                 <span class="text-muted">Sin rol asignado</span>
                             @endif
                         </dd>
 
                         <dt class="col-sm-3">Creado</dt>
-                        <dd class="col-sm-9">{{ optional($usuario->created_at)->format('Y-m-d H:i') }}</dd>
+                        <dd class="col-sm-9">{{ optional($user->created_at)->format('Y-m-d H:i') }}</dd>
 
                         <dt class="col-sm-3">Actualizado</dt>
-                        <dd class="col-sm-9">{{ optional($usuario->updated_at)->format('Y-m-d H:i') }}</dd>
+                        <dd class="col-sm-9">{{ optional($user->updated_at)->format('Y-m-d H:i') }}</dd>
                     </dl>
                 </div>
             </div>
@@ -89,9 +89,9 @@
                     <h5 class="mb-0">Acciones</h5>
                 </div>
                 <div class="card-body d-grid gap-2">
-                    <a href="{{ route('admin.usuarios.edit', $usuario) }}" class="btn btn-primary"><i
-                            class="ti ti-edit"></i> Editar</a>
-                    <form action="{{ route('admin.usuarios.destroy', $usuario) }}" method="POST"
+                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary"><i class="ti ti-edit"></i>
+                        Editar</a>
+                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
                         onsubmit="return confirm('¿Eliminar este usuario?');">
                         @csrf @method('DELETE')
                         <button class="btn btn-outline-danger"><i class="ti ti-trash"></i> Eliminar</button>

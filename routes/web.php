@@ -79,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
     // Usuarios/Roles/Permisos
     // CRUD usuarios
     Route::resource('roles', RolController::class);                     // CRUD roles
-    Route::resource('usuarios', UsuarioController::class);
+    Route::resource('users', UsuarioController::class);
     // // Catálogo de productos y listas rápidas
     Route::resource('productos', ProductosController::class)->parameters(['productos' => 'producto']);           // RF-07
     Route::resource('listas-rapidas', ListasRapidasController::class);  // RF-07

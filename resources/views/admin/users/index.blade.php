@@ -17,7 +17,7 @@
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h4 class="mb-0">Usuarios</h4>
-        <a href="{{ route('admin.usuarios.create') }}" class="btn btn-primary">
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-user-plus"></i> Nuevo usuario
         </a>
     </div>
@@ -42,7 +42,7 @@
 
     <div class="card mb-4">
         <div class="card-header">
-            <form method="GET" action="{{ route('admin.usuarios.index') }}" class="row g-3 align-items-end">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label">Buscar</label>
                     <input type="text" name="q" value="{{ $q }}" class="form-control"
@@ -119,15 +119,15 @@
                             </td>
                             <td>{{ optional($u->created_at)->format('Y-m-d') }}</td>
                             <td class="text-end">
-                                <a href="{{ route('admin.usuarios.show', $u) }}"
+                                <a href="{{ route('admin.users.show', $u) }}"
                                     class="btn btn-sm btn-icon btn-outline-secondary" title="Ver">
                                     <i class="fa-regular fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.usuarios.edit', $u) }}"
+                                <a href="{{ route('admin.users.edit', $u) }}"
                                     class="btn btn-sm btn-icon btn-outline-primary" title="Editar">
                                     <i class="fa-solid fa-user-pen"></i>
                                 </a>
-                                <form action="{{ route('admin.usuarios.destroy', $u) }}" method="POST"
+                                <form action="{{ route('admin.users.destroy', $u) }}" method="POST"
                                     id="delete-form-{{ $u->id }}" class="d-inline js-delete-form">
                                     @csrf @method('DELETE')
                                     <button type="button" class="btn btn-sm btn-icon btn-outline-danger js-open-delete"
