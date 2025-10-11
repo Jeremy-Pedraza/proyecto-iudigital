@@ -1,253 +1,897 @@
-<p align="center"></p>
+# Guía Completa de Despliegue - SIGERUTA Laravel 11
 
-<p align="center">
-   <a href="https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/" target="_blank">
-      <img src="https://cdn.themeselection.com/ts-assets/materio/logo/logo.png" alt="materio-logo" width="40px" height="auto">
-   </a>
-</p>
+## 📋 Tabla de Contenidos
 
-<h1 align="center">
-   <a href="https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/" target="_blank" align="center">
-      Materio - Free Bootstrap 5 HTML Laravel Admin Template
-   </a>
-</h1>
+1. [Requisitos Previos](#requisitos-previos)
+2. [Infraestructura Base](#infraestructura-base)
+3. [Instalación de Dependencias](#instalación-de-dependencias)
+4. [Configuración del Proyecto](#configuración-del-proyecto)
+5. [Configuración de PHP-FPM](#configuración-de-php-fpm)
+6. [Configuración de Nginx](#configuración-de-nginx)
+7. [Configuración de IIS (Proxy Reverso)](#configuración-de-iis-proxy-reverso)
+8. [Configuración de Laravel](#configuración-de-laravel)
+9. [Compilación de Assets](#compilación-de-assets)
+10. [Permisos y Seguridad](#permisos-y-seguridad)
+11. [Verificación Final](#verificación-final)
+12. [Troubleshooting](#troubleshooting)
 
-<p align="center">Most Powerful & Comprehensive Free Bootstrap 5 HTML Laravel Admin Dashboard Template built for developers!</p>
+---
 
-<p align="center">
-  <a href="https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/themeselection/materio-bootstrap-html-laravel-admin-template-free" alt="license">
-  </a>
-  <a href="https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free/releases/">
-    <img src="https://img.shields.io/github/release/themeselection/materio-bootstrap-html-laravel-admin-template-free.svg" alt="GitHub release">
-  </a>
-  <a href="https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free/issues">
-    <img src="https://img.shields.io/github/issues/themeselection/materio-bootstrap-html-laravel-admin-template-free.svg" alt="GitHub issues">
-  </a>
-  <a href="https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free/issues">
-    <img src="https://img.shields.io/github/issues-closed/themeselection/materio-bootstrap-html-laravel-admin-template-free.svg" alt="GitHub closed issues">
-  </a>
-  <a href="https://twitter.com/Theme_Selection" target="_blank">
-    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/Theme_Selection">
-  </a>
-</p>
+## 🎯 Requisitos Previos
 
-<kbd>[![Materio - Bootstrap 5 HTML Laravel Admin Template Demo Screenshot](https://cdn.themeselection.com/ts-assets/materio/materio-bootstrap-laravel-admin-template-free/banner/banner.png)](https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/)</kbd>
+### Hardware/Servidor
 
-## Introduction 🚀
+- Windows Server 2016+ o Windows 10/11 Pro
+- 4GB RAM mínimo (8GB recomendado)
+- 20GB espacio en disco
+- Conexión a Internet estable
 
-If you’re a developer looking for the most Powerful & comprehensive [**Free Bootstrap 5 HTML Laravel Admin Template**](https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/) built for developers, rich with features, and highly customizable look no further than Materio. We’ve followed the highest industry standards to bring you the very best admin template that is not only fast and easy to use but highly scalable. Offering ultimate convenience and flexibility, you’ll be able to build whatever application you want with very little hassle.
+### Software Base
 
-Build premium quality applications with ease. Use our innovative **[Laravel admin template](https://themeselection.com/item/category/laravel-admin-templates/)** to create eye-catching, high-quality WebApps. Your apps will be completely responsive, ensuring they’ll look stunning and function flawlessly on desktops, tablets, and mobile devices.
+- Windows con IIS 10+
+- PHP 8.1 o superior
+- Nginx para Windows
+- MySQL 8.0+
+- Composer 2.x
+- Node.js 18+ y Yarn/NPM
 
-[View Demo](https://demos.themeselection.com/materio-bootstrap-html-laravel-admin-template-free/demo/)
+---
 
-## Installation ⚒️
+## 🌐 Infraestructura Base
 
-Installing and running Materio is super easy, please Follow below steps and you will be ready to rock 🤘
+### 1. Dominio y DNS
 
-1. Open the terminal in your root directory of Materio Laravel.
-2. Use the following command to install the composer
+#### Comprar Dominio
 
-```bash
-composer install
+1. Proveedor recomendado: Namecheap, GoDaddy, Cloudflare
+2. Registrar: `sigeruta.tech`
+
+#### Configurar DNS
+
+```dns
+Tipo    Nombre    Valor              TTL
+A       @         20.121.137.55      1800
+CNAME   www       sigeruta.tech      1800
 ```
 
-3. Run the following command to generate the key
+### 2. Certificado SSL
 
-```bash
+#### Certificado Comercial
+
+1. Comprar en: namecheap o tu proveedor de dominio
+2. Generar CSR: CERTIFICATE SERVER REQUEST
+
+```powershell
+# En IIS Manager:
+# Server Certificates > Create Certificate Request
+```
+
+2.1 Completar Certificado de Dominio
+2.2 Generar Key a partir del .pfx 3. Descargar certificados (`.crt` y `.key`) 4. Colocar en: `C:\etc\ssl\`
+
+- `sigeruta.crt`
+- `sigeruta.key`
+
+---
+
+## 🔧 Instalación de Dependencias
+
+### 1. Instalar PHP 8.3.15
+
+#### Descargar PHP
+
+```powershell
+# Descargar desde: https://windows.php.net/download/
+# Versión: PHP 8.1+ Non-Thread Safe (NTS)
+
+# Extraer a:
+C:\php\
+```
+
+#### Configurar php.ini
+
+```ini
+# C:\php\php.ini
+
+; Extensiones necesarias (descomentar)
+extension=curl
+extension=fileinfo
+extension=gd
+extension=intl
+extension=mbstring
+extension=mysqli
+extension=pdo_mysql
+extension=openssl
+extension=zip
+
+; Configuración
+memory_limit = 256M
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300
+
+; Timezone
+date.timezone = America/Bogota
+```
+
+#### Agregar PHP al PATH
+
+```powershell
+# Como Administrador:
+[Environment]::SetEnvironmentVariable(
+    "Path",
+    "$env:Path;C:\php",
+    [EnvironmentVariableTarget]::Machine
+)
+```
+
+#### Verificar
+
+```powershell
+php -v
+# PHP 8.3.5.x (cli) ...
+```
+
+### 2. Instalar Composer
+
+```powershell
+# Descargar desde: https://getcomposer.org/download/
+
+# O via PowerShell:
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php --install-dir=C:\php --filename=composer
+php -r "unlink('composer-setup.php');"
+
+# Verificar
+composer --version
+```
+
+### 3. Instalar Node.js y Yarn
+
+```powershell
+# Descargar Node.js LTS
+# Instalar con el wizard
+
+# Verificar Node.js
+node -v
+npm -v
+
+# Instalar Yarn globalmente
+npm install -g yarn
+
+# Verificar Yarn
+yarn --version
+```
+
+### 4. Instalar Nginx
+
+```powershell
+# Descargar
+# Versión Stable para Windows
+
+# Extraer a:
+C:\nginx\
+
+# Estructura:
+# C:\nginx\
+#   ├── conf\
+#   ├── html\
+#   ├── logs\
+#   └── nginx.exe
+```
+
+---
+
+## 📦 Configuración del Proyecto
+
+### 1. Clonar/Subir el Proyecto
+
+```powershell
+# Ubicación del proyecto
+cd C:\nginx\html\
+
+# Si usas Git:
+git clone https://github.com/tu-usuario/sigeruta.git
+
+# O sube los archivos manualmente a:
+C:\nginx\html\sigeruta\
+```
+
+### 2. Instalar Dependencias PHP
+
+```powershell
+cd C:\nginx\html\sigeruta
+
+# Instalar dependencias de producción
+composer install --optimize-autoloader --no-dev
+
+# Generar APP_KEY
 php artisan key:generate
 ```
 
-4. By running the following command, you will be able to get all the dependencies in your **node_modules** folder:
+### 3. Instalar Dependencias Node.js
 
-```bash
-yarn
+```powershell
+# En el directorio del proyecto
+yarn install
+
+# O con npm:
+npm install
 ```
 
-5. To run the project, you need to run the following command in the project directory. It will compile JavaScript and Styles.
+### 4. Configurar Base de Datos
 
-```bash
-yarn build
+CREAR BASE DE DATOS
+BD= proyecto_iudigital
+
+#### Crear Base de Datos MySQL
+
+```sql
+CREATE DATABASE sigeruta CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'root'@'localhost' IDENTIFIED BY 'PASSWORD';
+GRANT ALL PRIVILEGES ON proyecto_iudigital.* TO 'root'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-6. To serve the application, you need to run the following command in the project directory
+#### Ejecutar Migraciones
 
-```bash
-php artisan serve
+```powershell
+php artisan migrate
+php artisan db:seed
 ```
 
-7. Now navigate to the given address, and you will see your application is running.🥳
+---
 
-## Available Tasks 🧑‍💻
+## ⚙️ Configuración de PHP-FPM
 
-**Building for Production:** If you want to run the project and make the build in the production mode then run the following command in the root directory, by default The project will continue to run in the development mode:
+### 1. Instalar PHP-FPM para Windows
 
-```bash
-yarn prod
+```powershell
+
+# O usar el php-cgi.exe incluido en PHP
+# Ya está en: C:\php\php-cgi.exe
 ```
 
-## What's Included 📦
+### 2. Crear Script de Inicio PHP-FPM
 
-- Dashboard
-- Layouts
-  - Without menu
-  - Without Navbar
-  - Container
-  - Fluid
-  - Blank
-- Pages
-  - Account Settings
-  - Login
-  - Register
-  - Forgot Password
-  - Error
-  - Under Maintenance
-- Cards
-- User Interface
-  - **All Bootstrap Components**
-- Extended UI
-  - Perfect Scrollbar
-  - Text Divider
-- Remix Icons
-- Form Elements
-  - Basic Inputs
-  - Input Groups
-- Form Layout
-  - Vertical Form
-  - Horizontal Form
-- Tables
+**Archivo:** `C:\php\start-php-fcgi.bat`
 
-## What's in Premium Version 💎
+```batch
+@ECHO OFF
+SET PHP_FCGI_CHILDREN=4
+SET PHP_FCGI_MAX_REQUESTS=1000
 
-| Materio Free Version                                                                              | Materio Premium Version                                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Demo](https://demos.themeselection.com/materio-bootstrap-html-laravel-admin-template-free/demo/) | [Demo](https://demos.themeselection.com/materio-bootstrap-html-laravel-admin-template/demo-1/)                                                                                                |
-| [Download](https://themeselection.com/item/materio-free-bootstrap-html-laravel-admin-template/)   | [Purchase](https://themeselection.com/item/materio-bootstrap-laravel-admin-template/)                                                                                                         |
-| Single vertical Menu                                                                              | Vertical Menu + Horizontal Menu                                                                                                                                                               |
-| Simple Light Style                                                                                | Light, Dark & System Style                                                                                                                                                                    |
-| Default Theme                                                                                     | Default, Semi Dark & Bordered Themes                                                                                                                                                          |
-| Fixed Layout(Menu)                                                                                | Fixed & Static Layout(Menu)                                                                                                                                                                   |
-| 1 Simple Dashboard                                                                                | 5 Niche Dashboards                                                                                                                                                                            |
-| -                                                                                                 | Multiple Ready to use Application like **Laravel CRUD Application**, Email, Chat, Calendar, Kanban, eCommerce, Academy, Logistics, Invoice, Users List, Users View, Roles and Permission etc. |
-| Simple Form Elements                                                                              | Advance form elements, validation & form wizard                                                                                                                                               |
-| Basic Cards                                                                                       | Basic, Advance , Statistics, Analytics, Gamifications and Actions Cards                                                                                                                       |
-| Basic User Interface(Components)                                                                  | Advance and Custom User Interfaces(Components)                                                                                                                                                |
-| Two Extended Components                                                                           | Twelve Ready to use Extended Components                                                                                                                                                       |
-| -                                                                                                 | Quick Search - Quickly navigate between pages (w/ hotkey support)                                                                                                                             |
-| Basic Pages                                                                                       | Authentication Pages in 2 Variants + Ready to use pages like User Profile, Account Settings,FAQ, Help Center, Pricing, Misc etc.                                                              |
-| -                                                                                                 | 3D Characters + Illustrations                                                                                                                                                                 |
-| Basic tables                                                                                      | Advanced & Data tables                                                                                                                                                                        |
-| -                                                                                                 | Quick customization using theme config file                                                                                                                                                   |
-| -                                                                                                 | Leaflet Maps                                                                                                                                                                                  |
-| 1 Chart Library                                                                                   | 2 Chart Libraries                                                                                                                                                                             |
-| -                                                                                                 | Multiple Navbar & Menu Options                                                                                                                                                                |
-| -                                                                                                 | Starter-kit                                                                                                                                                                                   |
-| -                                                                                                 | **Localization support**                                                                                                                                                                      |
-| -                                                                                                 | RTL Support                                                                                                                                                                                   |
-| Regular Support                                                                                   | Priority Support                                                                                                                                                                              |
-| Detailed Documentation                                                                            | Detailed Documentation                                                                                                                                                                        |
+cd C:\php
+php-cgi.exe -b 127.0.0.1:9000
+php-cgi.exe -b 127.0.0.1:9001
+php-cgi.exe -b 127.0.0.1:9002
+php-cgi.exe -b 127.0.0.1:9003
+```
 
-## Documentation 📜
+### 3. Ejecutar como Servicio (Opcional)
 
-<!-- If you have docs in wiki then use below line -->
+```powershell
+# Instalar NSSM (Non-Sucking Service Manager)
+choco install nssm
 
-Check GitHub [Wiki](https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free/wiki) of this repo
+# Crear servicio
+nssm install PHP-FastCGI "C:\php\php-cgi.exe" "-b 127.0.0.1:9000"
+nssm install PHP-FastCGI "C:\php\php-cgi.exe" "-b 127.0.0.1:9001"
+nssm install PHP-FastCGI "C:\php\php-cgi.exe" "-b 127.0.0.1:9002"
+nssm install PHP-FastCGI "C:\php\php-cgi.exe" "-b 127.0.0.1:9003"
 
-<!-- If you have live docs then use below line -->
+# Configurar servicio
+nssm set PHP-FastCGI AppEnvironmentExtra PHP_FCGI_MAX_REQUESTS=1000
+nssm set PHP-FastCGI AppEnvironmentExtra PHP_FCGI_CHILDREN=4
 
-Check out our live [Documentation](https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/laravel-introduction.html)
+# Iniciar
+nssm start PHP-FastCGI
+```
 
-## Browser Support 🖥️
+---
 
-![chrome](https://github.com/nuxt/nuxt/assets/47495003/bbb6d7b0-2db6-4af4-abdc-a73de71dd287)
-&nbsp;&nbsp;![firefox](https://github.com/nuxt/nuxt/assets/47495003/bca1f2d0-d597-453b-8525-5c94e36bfc33)
-&nbsp;&nbsp;![safari](https://github.com/nuxt/nuxt/assets/47495003/8ecbb395-78fb-40fb-bb59-7301bf8a7e5d)
-&nbsp;&nbsp;![Microsoft Edge](https://github.com/nuxt/nuxt/assets/47495003/f945821b-0cbd-464d-8103-824d4d5c4e9a)
+## 🌐 Configuración de Nginx
 
-## Contributing 🦸
+### 1. Configuración Principal
 
-Contribution are always welcome and recommended! Here is how:
+**Archivo:** `C:\nginx\conf\nginx.conf`
 
-- Fork the repository ([here is the guide](https://docs.github.com/en/get-started/quickstart/fork-a-repo)).
-- Clone to your machine `git clone https://github.com/themeselection/materio-bootstrap-html-laravel-admin-template-free.git` Make your changes
-- Create a pull request
+```nginx
+server {
+    # Nueva sintaxis para http2 (Nginx 1.25+)
+    listen 9440 ssl;
+    http2 on;
 
-### Contribution Requirements 🧰
+    server_name www.sigeruta.tech sigeruta.tech;
 
-- When you contribute, you agree to give a non-exclusive license to ThemeSelection to use that contribution in any context as we (ThemeSelection) see appropriate.
-- If you use content provided by another party, it must be appropriately licensed using an open source license.
-- Contributions are only accepted through Github pull requests.
-- Finally, contributed code must work in all supported browsers (see above for browser support).
+    root C:/nginx/html/sigeruta/public;
+    index index.php index.html;
 
-## Changelog 📆
+    # Logs
+    error_log C:/nginx/logs/sigeruta_error.log warn;
+    access_log C:/nginx/logs/sigeruta_access.log;
 
-Please refer to the [CHANGELOG](CHANGELOG.md) file. We will add a detailed release notes to each new release.
+    # Tamaño máximo de carga
+    client_max_body_size 100M;
 
-## Support 🧑🏻‍💻
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
-For free products, enjoy community support via GitHub issues. Upgrade to Premium for dedicated support from our expert team.
+    # PHP handling
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php_upstream;
+        fastcgi_index index.php;
 
-## License &copy;
+        # Parámetros FastCGI básicos
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+        fastcgi_param REQUEST_URI $request_uri;
+        fastcgi_param DOCUMENT_URI $document_uri;
+        fastcgi_param DOCUMENT_ROOT $document_root;
+        fastcgi_param SERVER_PROTOCOL $server_protocol;
+        fastcgi_param REQUEST_SCHEME $scheme;
+        fastcgi_param GATEWAY_INTERFACE CGI/1.1;
+        fastcgi_param SERVER_SOFTWARE nginx/$nginx_version;
+        fastcgi_param REMOTE_ADDR $remote_addr;
+        fastcgi_param REMOTE_PORT $remote_port;
+        fastcgi_param SERVER_ADDR $server_addr;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
 
-- Copyright © [ThemeSelection](https://themeselection.com/)
-- Licensed under [MIT](LICENSE)
-- All our free items are Open Source and licensed under MIT. You can use our free items for personal as well as commercial purposes. We just need an attribution from your end. Copy the below link and paste it at the footer of your web application or project.
-  ```html
-  <a href="https://themeselection.com/">ThemeSelection</a>
-  ```
+        # Headers de proxy para Laravel (CRÍTICO)
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_X_FORWARDED_PROTO https;
+        fastcgi_param HTTP_X_FORWARDED_HOST $http_host;
+        fastcgi_param HTTP_X_FORWARDED_PORT 443;
+        fastcgi_param HTTP_X_FORWARDED_FOR $remote_addr;
+        fastcgi_param SERVER_NAME www.sigeruta.tech;
+        fastcgi_param SERVER_PORT 443;
+        fastcgi_param HTTP_HOST $http_host;
 
-## Also Available In
+        # Buffers
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 8 128k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+        fastcgi_read_timeout 300;
+    }
 
-<p>
-  <!-- Figma -->
-   <a href="https://themeselection.com/item/materio-figma-admin-dashboard-ui-kit/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/0318a6c8-4f9b-4cf6-af5e-d357f909ea2b"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/47f21dfe-c1fc-4a7d-859e-4d98f8cdded1"><img width="auto" height="74px" alt="html" src="https://github.com/microsoft/vscode/assets/47495003/47f21dfe-c1fc-4a7d-859e-4d98f8cdded1"></picture></img></a>&nbsp;&nbsp;
-   <!-- HTML -->
-   <a href="https://themeselection.com/item/materio-bootstrap-html-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/5fe77c46-2e4c-475a-8dec-e30e2badddee"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/3f5decd8-cd99-4ed3-aa76-528ca061385b"><img width="auto" height="74px" alt="html" src="https://github.com/microsoft/vscode/assets/47495003/3f5decd8-cd99-4ed3-aa76-528ca061385b"></picture></img></a>&nbsp;&nbsp;
-   <!-- HTML + Laravel -->
-   <a href="https://themeselection.com/item/materio-bootstrap-laravel-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/efe420e4-9863-41b7-9eda-47ea94f21a62"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/be3b86e0-4d5e-4736-bf89-4267fb4d6710"><img width="auto" height="74px" alt="html_laravel" src="https://github.com/microsoft/vscode/assets/47495003/be3b86e0-4d5e-4736-bf89-4267fb4d6710"></picture></img></a>&nbsp;&nbsp;
-   <!-- HTML + Django -->
-   <a href="https://themeselection.com/item/materio-bootstrap-django-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/3c87d33b-1223-4aaa-a652-388dcb714c98"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/51db1947-eac1-466f-87fd-5a209010fe9c"><img width="auto" height="74px" alt="html_django" src="https://github.com/microsoft/vscode/assets/47495003/51db1947-eac1-466f-87fd-5a209010fe9c"></picture></img></a>&nbsp;&nbsp;
-   <!-- .Net Core -->
-   <a href="https://themeselection.com/item/materio-aspnet-core-mvc-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/6327fd7b-9c54-4189-a852-28551ad0e002"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/9856e9d5-021f-4573-902a-702e80dd0102"><img width="auto" height="74px" alt="net_core" src="https://github.com/microsoft/vscode/assets/47495003/9856e9d5-021f-4573-902a-702e80dd0102"></picture></img></a>&nbsp;&nbsp;
-   <!-- NextJS -->
-   <a href="https://themeselection.com/item/materio-mui-react-nextjs-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/66344629-6d21-4f92-9078-f479b39cb34e"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/e1daf4e1-3fa5-4a44-969a-6143ddd67310"><img width="auto" height="74px" alt="next.js" src="https://github.com/microsoft/vscode/assets/47495003/e1daf4e1-3fa5-4a44-969a-6143ddd67310"></picture></img></a>&nbsp;&nbsp;
-   <!-- React -->
-   <a href="https://themeselection.com/item/materio-mui-react-nextjs-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/3877046e-c652-4b3d-99e9-2e134da1d6cf"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/8c8c940e-d8f9-4213-a7f7-f8bc4968f169"><img width="auto" height="74px" alt="react" src="https://github.com/microsoft/vscode/assets/47495003/8c8c940e-d8f9-4213-a7f7-f8bc4968f169"></picture></img></a>&nbsp;&nbsp;
-   <!-- Vue -->
-   <a href="https://themeselection.com/item/materio-vuetify-vuejs-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/881bbbb8-d1c9-421c-9bce-4ea43dfa9e6e"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/b02d6473-0345-42c2-be58-e648806104fa"><img width="auto" height="74px" alt="vue" src="https://github.com/microsoft/vscode/assets/47495003/b02d6473-0345-42c2-be58-e648806104fa"></picture></img></a>&nbsp;&nbsp;
-   <!-- Vue + Laravel -->
-   <a href="https://themeselection.com/item/materio-vuetify-vuejs-laravel-admin-template/" target="_blank"><picture><source width="auto" height="74px" media="(prefers-color-scheme: dark)" srcset="https://github.com/microsoft/vscode/assets/47495003/20b6428e-3fa5-4f80-a389-9e4cd732c2de"><source width="auto" height="74px" media="(prefers-color-scheme: light)" srcset="https://github.com/microsoft/vscode/assets/47495003/3008d3eb-7b5b-4d9c-8563-837744a901da"><img width="auto" height="74px" alt="vue_laravel" src="https://github.com/microsoft/vscode/assets/47495003/3008d3eb-7b5b-4d9c-8563-837744a901da"></picture></img></a>&nbsp;&nbsp;
-</p>
+    # Denegar acceso a archivos ocultos
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
 
-<!-- Add other pro variants here. You can get the logo URL from here: https://icones.js.org/collection/logos -->
+    # Archivos estáticos
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml|svg|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+        try_files $uri =404;
+    }
 
-## Looking For Premium Admin Templates ?? 👀
+    # SSL
+    ssl_certificate C:/etc/ssl/sigeruta.crt;
+    ssl_certificate_key C:/etc/ssl/sigeruta.key;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
+    ssl_prefer_server_ciphers off;
 
-**[ThemeSelection](https://themeselection.com/)** provides Selected high quality, modern design, professional and easy-to-use **Fully Coded Dashboard Templates & UI Kits** to create your applications faster!
+    charset utf-8;
+}
+```
 
-- [Bootstrap Admin Templates](https://themeselection.com/item/category/bootstrap-admin-template/)
-- [VueJS Admin Templates](https://themeselection.com/item/category/vuejs-admin-templates/)
-- [Laravel Admin Templates](https://themeselection.com/item/category/laravel-admin-templates/)
-- [Django Admin Templates](https://themeselection.com/item/category/django-admin-template/)
-- [React (NextJS) Admin Templates](https://themeselection.com/item/category/next-js-admin-template/)
-- [ASP.Net Core Admin Templates](https://themeselection.com/item/category/asp-net-dashboard/)
-- [Free UI Kits](https://themeselection.com/item/category/free-ui-kits/) 
+### 3. Crear Carpetas Necesarias
 
-If you want to [Download Free Admin Templates](https://themeselection.com/item/category/free-admin-templates/) like Materio then do visit [ThemeSelection](https://themeselection.com/).
+```powershell
+# Crear carpeta sites-enabled si no existe
+New-Item -ItemType Directory -Force -Path "C:\nginx\conf\sites-enabled"
+```
 
-## Useful Links 🎁
+### 4. Iniciar Nginx
 
-- [Vue CheatSheet](https://vue-cheatsheet.themeselection.com/)
-- [Freebies](https://themeselection.com/item/category/free-admin-templates/)
-- [Download Free Admin Templates](https://themeselection.com/item/category/free-admin-templates/)
-- [Bootstrap 5 CheatSheet](https://bootstrap-cheatsheet.themeselection.com/)
+```powershell
+# Verificar configuración
+cd C:\nginx
+nginx -t
 
-## Social Media :earth_africa:
+# Si todo está OK, iniciar
+nginx
 
-- [Twitter](https://twitter.com/Theme_Selection)
-- [Facebook](https://www.facebook.com/ThemeSelections/)
-- [Pinterest](https://pinterest.com/themeselect/)
-- [Instagram](https://www.instagram.com/themeselection/)
-- [Discord](https://discord.gg/kBHkY7DekX)
-- [YouTube](https://www.youtube.com/channel/UCuryo5s0CW4aP83itLjIdZg)
+# O reiniciar si ya está corriendo
+nginx -s reload
+```
+
+### 5. Crear Servicio de Nginx (Opcional)
+
+```powershell
+# Con NSSM
+nssm install Nginx "C:\nginx\nginx.exe"
+nssm set Nginx AppDirectory "C:\nginx"
+nssm start Nginx
+```
+
+---
+
+## 🔄 Configuración de IIS (Proxy Reverso)
+
+### 1. Instalar Módulos Necesarios
+
+#### Instalar URL Rewrite
+
+1. Descargar desde: https://www.iis.net/downloads/microsoft/url-rewrite
+2. Ejecutar instalador `rewrite_amd64.msi`
+
+#### Instalar Application Request Routing (ARR)
+
+1. Descargar desde: https://www.iis.net/downloads/microsoft/application-request-routing
+2. Ejecutar instalador `ARR_x64.msi`
+3. Reiniciar IIS: `iisreset`
+
+### 2. Habilitar Proxy en ARR
+
+```powershell
+# Via PowerShell (como Administrador)
+Import-Module WebAdministration
+Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+    -filter "system.webServer/proxy" `
+    -name "enabled" `
+    -value "True"
+
+iisreset
+```
+
+O manualmente:
+
+1. Abrir **IIS Manager**
+2. Clic en el **servidor** (nivel superior)
+3. Doble clic en **"Application Request Routing Cache"**
+4. En el panel derecho: **"Server Proxy Settings..."**
+5. Marcar: **"Enable proxy"**
+6. Aplicar
+
+### 3. Configurar Server Variables Permitidas
+
+```powershell
+# Via PowerShell (Recomendado)
+$variables = @(
+    'HTTP_X_FORWARDED_HOST',
+    'HTTP_X_FORWARDED_PROTO',
+    'HTTP_X_FORWARDED_PORT',
+    'HTTP_X_FORWARDED_FOR'
+)
+
+foreach ($var in $variables) {
+    try {
+        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+            -filter "system.webServer/rewrite/allowedServerVariables" `
+            -name "." `
+            -value @{name=$var}
+        Write-Host "✓ $var agregada" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "⚠ $var ya existe" -ForegroundColor Yellow
+    }
+}
+
+iisreset
+```
+
+### 4. Configurar Regla de Proxy
+
+**Archivo:** `C:\inetpub\wwwroot\web.config` (o en tu sitio web)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <!-- Proxy SIGERUTA a Nginx interno -->
+                <rule name="Proxy_app_sigeruta_to_9440" stopProcessing="true">
+                    <match url="(.*)" />
+                    <conditions>
+                        <add input="{HTTP_HOST}" pattern="^(www\.)?sigeruta\.tech$" />
+                    </conditions>
+                    <action type="Rewrite" url="https://10.0.0.5:9440/{R:1}" />
+                    <serverVariables>
+                        <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
+                        <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+                        <set name="HTTP_X_FORWARDED_PORT" value="443" />
+                        <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+                    </serverVariables>
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+```
+
+### 5. Reiniciar IIS
+
+```powershell
+iisreset
+```
+
+---
+
+## 🚀 Configuración de Laravel
+
+### 1. Configurar .env
+
+**Archivo:** `.env`
+
+```env
+APP_NAME=SIGERUTA
+APP_ENV=production
+APP_KEY=base64:tu_key_generada_aqui
+APP_DEBUG=false
+APP_TIMEZONE=UTC
+APP_URL=https://www.sigeruta.tech
+ASSET_URL=https://www.sigeruta.tech
+
+# Base de datos
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sigeruta
+DB_USERNAME=sigeruta_user
+DB_PASSWORD=tu_password_seguro
+
+# Sesiones seguras
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_SECURE_COOKIE=true
+SESSION_DOMAIN=.sigeruta.tech
+
+# Cache
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+
+# Logs
+LOG_CHANNEL=daily
+LOG_LEVEL=error
+```
+
+### 2. Configurar Trusted Proxies
+
+**Archivo:** `bootstrap/app.php`
+
+```php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;  // ⚠️ IMPORTANTE: Agregar este import
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        // Configurar Trusted Proxies (IIS + Nginx)
+        $middleware->trustProxies(
+            at: '*',  // Confía en todos los proxies
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                     Request::HEADER_X_FORWARDED_HOST |
+                     Request::HEADER_X_FORWARDED_PORT |
+                     Request::HEADER_X_FORWARDED_PROTO |
+                     Request::HEADER_X_FORWARDED_AWS_ELB
+        );
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+```
+
+### 3. Configurar AppServiceProvider
+
+**Archivo:** `app/Providers/AppServiceProvider.php`
+
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        // Forzar HTTPS en producción
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+            URL::forceRootUrl(config('app.url'));
+        }
+    }
+}
+```
+
+---
+
+## 🎨 Compilación de Assets
+
+### 1. Configurar Vite
+
+**Archivo:** `vite.config.js`
+
+```javascript
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import html from '@rollup/plugin-html';
+import { glob } from 'glob';
+
+function GetFilesArray(query) {
+  return glob.sync(query);
+}
+
+// Archivos JS
+const pageJsFiles = GetFilesArray('resources/assets/js/*.js');
+const vendorJsFiles = GetFilesArray('resources/assets/vendor/js/*.js');
+const LibsJsFiles = GetFilesArray('resources/assets/vendor/libs/**/*.js');
+
+// Archivos CSS/SCSS
+const AssetsCssFiles = GetFilesArray('resources/assets/css/**/*.css');
+const CoreScssFiles = GetFilesArray('resources/assets/vendor/scss/**/!(_)*.scss');
+const LibsScssFiles = GetFilesArray('resources/assets/vendor/libs/**/!(_)*.scss');
+const LibsCssFiles = GetFilesArray('resources/assets/vendor/libs/**/*.css');
+const FontsScssFiles = GetFilesArray('resources/assets/vendor/fonts/**/!(_)*.scss');
+
+export default defineConfig({
+  plugins: [
+    laravel({
+      input: [
+        'resources/css/app.css',
+        'resources/js/app.js',
+        ...AssetsCssFiles,
+        ...pageJsFiles,
+        ...vendorJsFiles,
+        ...LibsJsFiles,
+        ...CoreScssFiles,
+        ...LibsScssFiles,
+        ...LibsCssFiles,
+        ...FontsScssFiles
+      ],
+      refresh: true
+    }),
+    html()
+  ],
+  build: {
+    manifest: true,
+    outDir: 'public/build',
+    emptyOutDir: true
+  }
+});
+```
+
+### 2. Compilar Assets para Producción
+
+```powershell
+cd C:\nginx\html\sigeruta
+
+# Limpiar build anterior
+Remove-Item -Path "public\build\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+# Compilar con Yarn
+yarn run build
+
+# O con NPM
+npm run build
+```
+
+### 3. Verificar Compilación
+
+```powershell
+# Verificar que exista el manifest
+Test-Path "public\build\manifest.json"
+
+# Ver contenido del manifest
+Get-Content "public\build\manifest.json" | ConvertFrom-Json | ConvertTo-Json -Depth 10
+
+# Verificar archivos compilados
+Get-ChildItem -Path "public\build\assets" | Select-Object Name, Length
+```
+
+---
+
+## 🔐 Permisos y Seguridad
+
+### 1. Permisos de Carpetas
+
+```powershell
+# Storage (escritura para Laravel)
+icacls "C:\nginx\html\sigeruta\storage" /grant "IIS_IUSRS:(OI)(CI)F" /T
+icacls "C:\nginx\html\sigeruta\storage" /grant "IUSR:(OI)(CI)F" /T
+
+# Bootstrap cache
+icacls "C:\nginx\html\sigeruta\bootstrap\cache" /grant "IIS_IUSRS:(OI)(CI)F" /T
+icacls "C:\nginx\html\sigeruta\bootstrap\cache" /grant "IUSR:(OI)(CI)F" /T
+
+# Logs
+New-Item -ItemType Directory -Force -Path "C:\nginx\html\sigeruta\storage\logs"
+icacls "C:\nginx\html\sigeruta\storage\logs" /grant "Everyone:(OI)(CI)F" /T
+```
+
+### 2. Cachear Configuraciones
+
+```powershell
+cd C:\nginx\html\sigeruta
+
+# Limpiar cachés existentes
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+# Cachear para producción (mejora performance)
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan optimize
+```
+
+### 3. Proteger Archivos Sensibles
+
+```powershell
+# Denegar acceso web a .env
+# Ya está protegido por la configuración de Nginx (location ~ /\.)
+
+# Verificar que .env no sea accesible:
+# https://www.sigeruta.tech/.env (debe dar 403 o 404)
+```
+
+---
+
+## ✅ Verificación Final
+
+### 1. Checklist de Servicios
+
+```powershell
+# Verificar PHP-FPM
+Test-NetConnection -ComputerName 127.0.0.1 -Port 9000
+
+# Verificar Nginx
+Test-NetConnection -ComputerName 10.0.0.5 -Port 9440
+
+# Verificar MySQL
+Test-NetConnection -ComputerName 127.0.0.1 -Port 3306
+
+# Ver procesos corriendo
+Get-Process nginx, php-cgi, mysqld -ErrorAction SilentlyContinue
+```
+
+### 2. Probar Endpoints
+
+#### Ruta de Prueba (Temporal)
+
+**Archivo:** `routes/web.php` (agregar temporalmente)
+
+```php
+Route::get('/test-deployment', function() {
+    return response()->json([
+        'status' => 'OK',
+        'APP_URL' => config('app.url'),
+        'ASSET_URL' => config('app.asset_url'),
+        'request_url' => request()->url(),
+        'request_host' => request()->getHost(),
+        'request_scheme' => request()->getScheme(),
+        'is_secure' => request()->secure(),
+        'php_version' => PHP_VERSION,
+        'laravel_version' => app()->version(),
+        'headers' => [
+            'X-Forwarded-Proto' => request()->header('X-Forwarded-Proto'),
+            'X-Forwarded-Host' => request()->header('X-Forwarded-Host'),
+            'Host' => request()->header('Host'),
+        ],
+        'db_connection' => DB::connection()->getPdo() ? 'OK' : 'FAIL',
+        'storage_writable' => is_writable(storage_path()),
+    ], JSON_PRETTY_PRINT);
+});
+```
+
+Visitar: `https://www.sigeruta.tech/test-deployment`
+
+**Resultado Esperado:**
+
+```json
+{
+  "status": "OK",
+  "APP_URL": "https://www.sigeruta.tech",
+  "request_host": "www.sigeruta.tech",
+  "request_scheme": "https",
+  "is_secure": true,
+  "db_connection": "OK",
+  "storage_writable": true
+}
+```
+
+### 3. Probar Login
+
+Visitar: `https://www.sigeruta.tech/auth/login-basic`
+
+Verificar:
+
+- ✅ La página carga sin errores
+- ✅ Los estilos CSS se aplican correctamente
+- ✅ Los iconos (FontAwesome) se muestran
+- ✅ Los assets cargan desde `www.sigeruta.tech` (no desde IP interna)
+
+---
+
+## 🚨 Troubleshooting
+
+### Problema: Error 500 en IIS
+
+**Síntomas:** IIS muestra "Internal Server Error"
+
+**Solución:**
+
+```powershell
+# Verificar que ARR esté instalado
+Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+    -filter "system.webServer/proxy" -name "enabled"
+
+# Si retorna error, instalar ARR
+# https://www.iis.net/downloads/microsoft/application-request-routing
+
+# Habilitar proxy
+Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+    -filter "system.webServer/proxy" -name "enabled" -value "True"
+
+iisreset
+```
+
+### Problema: Assets con IP Local (10.0.0.5:9440)
+
+**Síntomas:** Los CSS/JS cargan desde IP interna en lugar del dominio
+
+**Solución:**
+
+1. Verificar `.env`:
+
+```env
+ASSET_URL=https://www.sigeruta.tech
+```
+
+2. Verificar `bootstrap/app.php` tenga `use Illuminate\Http\Request;`
+
+3. Limpiar cachés:
+
+```powershell
+php artisan config:clear
+php artisan config:cache
+```
+
+### Problema: Error "Class Request not found"
+
+**Síntomas:** Fatal error en `bootstrap/app.php:25`
+
+**Solución:**
+Agregar import en `bootstrap/app.php`:
+
+```php
+use Illuminate\Http\Request;  // ⚠️ Agregar esta línea
+```
+
+### Problema: Vite Error - "Unable to locate file in manifest"
+
+**Síntomas:** Error de fontaw
